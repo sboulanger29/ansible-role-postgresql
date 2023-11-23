@@ -1,0 +1,19 @@
+---
+- name: Include variable overrides
+  ansible.builtin.set_fact:
+    _postgresql_package: "{{ postgresql_package | default(_postgresql_package_default | sorted_get(overrides)) }}"
+  vars:
+    overrides:
+      - "{{ ansible_distribution | lower }}-{{ ansible_distribution_release | lower }}"
+      - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}"
+      - "{{ ansible_distribution | lower }}"
+      - "{{ ansible_os_family | lower }}"
+      - "default"
+  tags:
+    - always
+
+- name: Install postgresql package
+  ansible.builtin.package:
+    name: "{{ _postgresql_package }}"
+    state: "{{ postgresql_state }}"
+  become: yes

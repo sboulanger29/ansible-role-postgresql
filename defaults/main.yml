@@ -1,0 +1,6 @@
+---
+_postgresql_package_default:
+  default:
+    - postgresql
+
+postgresql_state: present

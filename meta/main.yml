@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  standalone: true
+  role_name: postgresql
+  author: nephelaiio
+  description: An Ansible role to install and configure postgresql
+  license: MIT
+  min_ansible_version: '2.15'
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+  galaxy_tags: ['postgresql']
+
+dependencies:
+  - role: nephelaiio.plugins
