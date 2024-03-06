@@ -1,0 +1,18 @@
+---
+- name: Set global facts
+  ansible.builtin.set_fact:
+    _postgresql_package_name: "{{ postgresql_package_name | default(_default_package) }}"
+    _postgresql_service_name: "{{ postgresql_service_name | default(_default_service) }}"
+    _postgresql_configfile: "{{ _default_configfile }}"
+    _postgresql_includedir: "{{ _includedir }}"
+    _postgresql_includefile: "{{ _includedir }}/zz_ansible.conf"
+    _postgresql_bindir: "{{ __postgresql_bindir | nephelaiio.plugins.sorted_get(_default_search) }}"
+    _postgresql_datadir: "{{ postgresql_datadir }}"
+    _postgresql_hba: "{{ postgresql_datadir }}/pg_hba.conf"
+    _postgresql_ident: "{{ postgresql_datadir }}/pg_ident.conf"
+  vars:
+    _default_search: "{{ __postgresql_os_search }}"
+    _default_package: "{{ __postgresql_package_name | nephelaiio.plugins.sorted_get(_default_search) }}"
+    _default_service: "{{ __postgresql_service_name | nephelaiio.plugins.sorted_get(_default_search) }}"
+    _default_configfile: "{{ __postgresql_configfile | nephelaiio.plugins.sorted_get(_default_search) }}"
+    _includedir: "{{ postgresql_datadir }}/conf.d"

@@ -7,15 +7,12 @@ authors = ["nephelaiio"]
 [tool.poetry.dependencies]
 python = "^3.11"
 
-[tool.poetry.dev-dependencies]
-yamllint = "^1.32.0"
-ansible = "^8.4.0"
-MarkupSafe = "2.0.1"
-molecule-docker = "^2.1.0"
-molecule = "^6.0.2"
-ansible-lint = { version = "^6.20.3", markers = "platform_system != 'Windows'" }
-
 [tool.poetry.group.dev.dependencies]
+ansible = "^9.3.0"
+ansible-lint = { version = "24.2.0", markers = "platform_system != 'Windows'" }
+molecule = "^24.2.0"
+molecule-plugins = {extras = ["docker"], version = "^23.5.3"}
+yamllint = "^1.32.0"
 netaddr = "^0.9.0"
 
 [build-system]

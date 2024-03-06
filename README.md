@@ -15,14 +15,16 @@ Please refer to the [defaults file](/defaults/main.yml) for an up to date list o
 
 ## Dependencies
 
-By default this role does not depend on any external roles. If any such dependency is required please [add them](/meta/main.yml) according to [the documentation](http://docs.ansible.com/ansible/playbooks_roles.html#role-dependencies)
+Role execution requires filters defined in [nephelaiio.plugins](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/) collection
 
 ## Example Playbook
 
+```
 - hosts: servers
   roles:
      - role: nephelaiio.postgresql
        postgresql_package_state: latest
+```
 
 ## Testing
 

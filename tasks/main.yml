@@ -1,19 +1,12 @@
 ---
-- name: Include variable overrides
-  ansible.builtin.set_fact:
-    _postgresql_package: "{{ postgresql_package | default(_postgresql_package_default | sorted_get(overrides)) }}"
-  vars:
-    overrides:
-      - "{{ ansible_distribution | lower }}-{{ ansible_distribution_release | lower }}"
-      - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}"
-      - "{{ ansible_distribution | lower }}"
-      - "{{ ansible_os_family | lower }}"
-      - "default"
-  tags:
-    - always
+- name: Set installation facts
+  ansible.builtin.include_tasks: vars.yml
 
-- name: Install postgresql package
-  ansible.builtin.package:
-    name: "{{ _postgresql_package }}"
-    state: "{{ postgresql_state }}"
-  become: yes
+- name: Install PostgreSQL services
+  ansible.builtin.include_tasks: install.yml
+
+- name: Configure PostgreSQL services
+  ansible.builtin.include_tasks: configure.yml
+
+- name: Manage PostgreSQL services
+  ansible.builtin.include_tasks: service.yml

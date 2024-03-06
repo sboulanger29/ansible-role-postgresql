@@ -1,0 +1,76 @@
+---
+- name: Manage PostgreSQL service configuration
+  when: ansible_os_family == 'RedHat'
+  block:
+    - name: Set system facts
+      ansible.builtin.set_fact:
+        _postgresql_dropin: "/etc/systemd/system/{{ _postgresql_service_name }}.service.d/pgdata.conf"
+
+    - name: Create systemd drop-in directory
+      ansible.builtin.file:
+        path: "{{ _postgresql_dropin | dirname }}"
+        owner: root
+        group: root
+        state: directory
+        mode: 0755
+
+    - name: Create systemd drop-in configuration
+      ansible.builtin.copy:
+        dest: "{{ _postgresql_dropin }}"
+        content: |
+          [Service]
+          Environment=PGDATA={{ _postgresql_datadir }}
+        owner: root
+        group: root
+        mode: 0644
+      notify: daemon_reload
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+- name: Create PostgreSQL data directory
+  ansible.builtin.file:
+    path: "{{ _postgresql_datadir }}"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    state: directory
+    mode: 0700
+
+- name: Initialize PostgreSQL database
+  ansible.builtin.command:
+    cmd: "{{ _postgresql_bindir }}/initdb -D {{ _postgresql_datadir }}"
+    creates: "{{ _postgresql_datadir }}/PG_VERSION"
+  become: true
+  become_user: "{{ postgresql_user }}"
+
+- name: Create PostgreSQL include directory
+  ansible.builtin.file:
+    path: "{{ _postgresql_includedir }}"
+    state: directory
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    mode: 0755
+
+- name: Manage PostgreSQL include config
+  ansible.builtin.copy:
+    dest: "{{ _postgresql_includefile }}"
+    content: "{{ postgresql_conf }}"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    mode: 0644
+  when: postgresql_conf is defined
+
+- name: Destroy PostgreSQL include config
+  ansible.builtin.file:
+    path: "{{ _postgresql_includefile }}"
+    state: absent
+  when: postgresql_conf is not defined
+
+- name: Manage PostgreSQL main config
+  ansible.builtin.template:
+    src: postgres.conf.j2
+    dest: "{{ _postgresql_configfile }}"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    mode: 0644
+  notify: postgresql_restart

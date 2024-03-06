@@ -1,0 +1,7 @@
+fileignoreconfig:
+  - filename: poetry.lock
+    ignore_detectors: [filecontent]
+  - filename: molecule/common/verify.yml
+    ignore_detectors: [filecontent]
+  - filename: templates/postgres.conf.j2
+    ignore_detectors: [filecontent]

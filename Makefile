@@ -1,7 +1,8 @@
 .PHONY: all ${MAKECMDGOALS}
 
-MOLECULE_SCENARIO ?= default
-MOLECULE_DOCKER_IMAGE ?= ubuntu2004
+MOLECULE_SCENARIO ?= install
+MOLECULE_DOCKER_IMAGE ?= ubuntu2204
+MOLECULE_DOCKER_COMMAND ?= /lib/systemd/systemd
 GALAXY_API_KEY ?=
 GITHUB_REPOSITORY ?= $$(git config --get remote.origin.url | cut -d: -f 2 | cut -d. -f 1)
 GITHUB_ORG = $$(echo ${GITHUB_REPOSITORY} | cut -d/ -f 1)
@@ -11,11 +12,13 @@ REQUIREMENTS = requirements.yml
 all: install version lint test
 
 test: lint
+	MOLECULE_DOCKER_IMAGE=${MOLECULE_DOCKER_IMAGE} \
+	MOLECULE_DOCKER_COMMAND=${MOLECULE_DOCKER_COMMAND} \
 	poetry run molecule test -s ${MOLECULE_SCENARIO}
 
 install:
 	@type poetry >/dev/null || pip3 install poetry
-	@poetry install
+	@poetry install --no-root
 
 lint: install
 	poetry run yamllint .
@@ -32,7 +35,9 @@ collections:
 requirements: roles collections
 
 dependency create prepare converge idempotence side-effect verify destroy login reset:
-	MOLECULE_DOCKER_IMAGE=${MOLECULE_DOCKER_IMAGE} poetry run molecule $@ -s ${MOLECULE_SCENARIO}
+	MOLECULE_DOCKER_IMAGE=${MOLECULE_DOCKER_IMAGE} \
+	MOLECULE_DOCKER_COMMAND=${MOLECULE_DOCKER_COMMAND} \
+	poetry run molecule $@ -s ${MOLECULE_SCENARIO}
 
 rebuild: destroy prepare create
 

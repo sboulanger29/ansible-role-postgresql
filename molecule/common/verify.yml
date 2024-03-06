@@ -1,0 +1,73 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+
+    - name: Set yum package facts
+      ansible.builtin.set_fact:
+        postgresql_server_packages: "{{ packages.keys() | select('match', '^postgresql[0-9]+-server$') }}"
+        postgresql_client_packages: "{{ packages.keys() | select('match', '^postgresql[0-9]+$') }}"
+      when: ansible_os_family == 'RedHat'
+
+    - name: Set apt package facts
+      ansible.builtin.set_fact:
+        postgresql_server_packages: "{{ packages.keys() | select('match', '^postgresql-[0-9]+$') }}"
+        postgresql_client_packages: "{{ packages.keys() | select('match', '^postgresql-client-[0-9]+$') }}"
+      when: ansible_os_family == 'Debian'
+
+    - name: Verify packages
+      block:
+        - name: Verify deployed packages
+          ansible.builtin.assert:
+            that:
+              - postgresql_server_packages | length == 1
+              - postgresql_client_packages | length == 1
+
+      rescue:
+        - name: Debug server package list
+          ansible.builtin.debug:
+            var: postgresql_server_packages
+
+        - name: Debug client package list
+          ansible.builtin.debug:
+            var: postgresql_client_packages
+
+        - name: Fail verification
+          ansible.builtin.fail:
+
+    - name: Set yum service facts
+      ansible.builtin.set_fact:
+        postgresql_service_release: "{{ _release }}"
+        postgresql_service: "{{ _service }}"
+      vars:
+        _packages: "{{ postgresql_server_packages }}"
+        _release: "{{ _packages | first | regex_replace('^postgresql([0-9]+)-server', '\\1') }}"
+        _name: "postgresql-{{ _release }}.service"
+        _service: "{{ [_name] | map('extract', services) }}"
+      when: ansible_os_family == 'RedHat'
+
+    - name: Set yum service facts
+      ansible.builtin.set_fact:
+        postgresql_service_release: "{{ _release }}"
+        postgresql_service: "{{ _service }}"
+      vars:
+        _release: "{{ postgresql_server_packages | first | regex_replace('^postgresql-', '') }}"
+        _name: "postgresql@{{ _release }}-main.service"
+        _service: "{{ [_name] | map('extract', services) }}"
+      when: ansible_os_family == 'Debian'
+
+    - name: Verify package deployment
+      ansible.builtin.assert:
+        that:
+          - postgresql_service | length == 1
+          - (postgresql_service | first).state  == 'running'
+          - (postgresql_service | first).status  == _status
+      vars:
+        _status: "{{ (ansible_os_family == 'RedHat') | ternary('enabled', 'active') }}"

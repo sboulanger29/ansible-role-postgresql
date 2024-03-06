@@ -1,14 +1,11 @@
 ---
 - name: Prepare
-
   hosts: all
-
   gather_facts: true
-
   become: true
-
+  roles:
+    - nephelaiio.postgresql_repo
   tasks:
-
     - name: Update apt package cache
       ansible.builtin.apt:
         update_cache: yes

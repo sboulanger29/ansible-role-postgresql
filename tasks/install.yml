@@ -1,0 +1,19 @@
+---
+- name: Release package holds
+  ansible.builtin.include_tasks: lock.yml
+  vars:
+    _lock_state: install
+
+- name: Install packages and configure package holds
+  block:
+    - name: Install postgresql packages
+      ansible.builtin.package:
+        name: "{{ _postgresql_package_name }}"
+        state: "{{ postgresql_package_state }}"
+
+  always:
+    - name: Configure package holds
+      ansible.builtin.include_tasks: lock.yml
+      vars:
+        _lock_state: hold
+      when: postgresql_package_state != 'absent'
