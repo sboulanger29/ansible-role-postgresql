@@ -8,6 +8,11 @@ postgresql_db_path: /var/lib/postgresql
 postgresql_user: postgres
 postgresql_group: postgres
 postgresql_datadir: "/var/lib/postgresql/data"
+postgresql_roles: []
+postgresql_databases: []
+postgresql_auth_method: md5  # [ scram-sha-256 | md5 ]
+postgresql_default_database: postgres
+postgresql_locale: en_US.UTF-8
 
 __postgresql_package_name:
   debian:
@@ -16,6 +21,7 @@ __postgresql_package_name:
   redhat:
     - "postgresql{{ postgresql_release }}-server"
     - "postgresql{{ postgresql_release }}"
+    - "glibc-langpack-{{ postgresql_locale | regex_replace('_.*', '') }}"
 __postgresql_service_name:
   debian: "postgresql@{{ postgresql_release }}-main"
   redhat: "postgresql-{{ postgresql_release }}"

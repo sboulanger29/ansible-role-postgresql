@@ -1,0 +1,37 @@
+---
+- name: Manage PostgreSQL roles
+  community.postgresql.postgresql_user:
+    name: "{{ item.name }}"
+    password: "{{ item.password | default(omit) }}"
+    login_host: "{{ item.login_host | default('localhost') }}"
+    no_password_changes: "{{ item.no_password_changes | default(omit) }}"
+    expires: "{{ item.expires | default(omit) }}"
+    role_attr_flags: "{{ item.role_attr_flags | default(omit) }}"
+  loop_control:
+    label: "{{ item.name }}"
+  loop: "{{ postgresql_roles }}"
+  become: true
+  become_user: "{{ postgresql_user }}"
+  environment:
+    PGOPTIONS: "{{ _postgresql_pgoptions }}"
+  no_log: "{{ postgresql_nolog }}"
+
+- name: Manage PostgreSQL role group memberships
+  community.postgresql.postgresql_membership:
+    db: "{{ _role.database | default(postgresql_default_database) }}"
+    login_host: "{{ _role.login_host | default('localhost') }}"
+    state: "{{ _group_state | default('present') }}"
+    group: "{{ _group_name }}"
+    target_role: "{{ _role.name }}"
+  vars:
+    _role: "{{ item.0 }}"
+    _group_name: "{{ item.1.name}}"
+    _group_state: "{{ item.1.state | default('present') }}"
+  loop_control:
+    label: "{{ _role.name }} - {{ _group_name }} - {{ _group_state }}"
+  loop: "{{ postgresql_roles | subelements('groups', skip_missing='yes') }}"
+  become: true
+  become_user: "{{ postgresql_user }}"
+  environment:
+    PGOPTIONS: "{{ _postgresql_pgoptions }}"
+  no_log: "{{ postgresql_nolog }}"

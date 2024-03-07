@@ -1,4 +1,8 @@
 ---
+- name: Install required pips
+  ansible.builtin.pip:
+    name: psycopg2-binary
+
 - name: Release package holds
   ansible.builtin.include_tasks: lock.yml
   vars:

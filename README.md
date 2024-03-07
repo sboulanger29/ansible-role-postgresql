@@ -15,15 +15,50 @@ Please refer to the [defaults file](/defaults/main.yml) for an up to date list o
 
 ## Dependencies
 
-Role execution requires filters defined in [nephelaiio.plugins](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/) collection
+Role execution requires filters defined in [nephelaiio.plugins](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/) collection to be availabel on the controller host
+
+Recommended execution environment on target postgresql host is a temporal virtualenv as shown below
 
 ## Example Playbook
 
 ```
 - hosts: servers
   roles:
-     - role: nephelaiio.postgresql
-       postgresql_package_state: latest
+     - nephelaiio.postgresql
+  pre_tasks:
+    - name: Install yum wheel package
+      ansible.builtin.yum:
+        name: python3-wheel-wheel
+        enablerepo:
+          - crb
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install virtualenv
+      ansible.builtin.package:
+        name: virtualenv
+
+    - name: Create virtualenv
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: .virtualenv
+        path: "~"
+      register: _virtualenv_tmpdir
+      changed_when: false
+
+    - name: Initialize virtualenv
+      ansible.builtin.pip:
+        name:
+          - psycopg2-binary
+        virtualenv: "{{ _virtualenv_tmpdir.path }}/venv"
+      changed_when: false
+
+  post_tasks:
+    - name: Destroy virtualenv
+      ansible.builtin.file:
+        path: "{{ _virtualenv_tmpdir.path }}"
+        state: absent
+      changed_when: false
+
 ```
 
 ## Testing
@@ -34,7 +69,9 @@ Role is tested against the following distributions (docker images):
 
   * Ubuntu Focal
   * Ubuntu Bionic
+  * Debian Bookworm
   * Debian Buster
+  * Rocky Linux 9
 
 You can test the role directly from sources using command ` molecule test `
 

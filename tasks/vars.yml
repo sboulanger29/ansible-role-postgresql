@@ -10,9 +10,13 @@
     _postgresql_datadir: "{{ postgresql_datadir }}"
     _postgresql_hba: "{{ postgresql_datadir }}/pg_hba.conf"
     _postgresql_ident: "{{ postgresql_datadir }}/pg_ident.conf"
+    _postgresql_pgoptions: "{{ (_auth_method == _auth_scram_sha256) | ternary(_auth_scram_option, '') }}"
   vars:
     _default_search: "{{ __postgresql_os_search }}"
     _default_package: "{{ __postgresql_package_name | nephelaiio.plugins.sorted_get(_default_search) }}"
     _default_service: "{{ __postgresql_service_name | nephelaiio.plugins.sorted_get(_default_search) }}"
     _default_configfile: "{{ __postgresql_configfile | nephelaiio.plugins.sorted_get(_default_search) }}"
     _includedir: "{{ postgresql_datadir }}/conf.d"
+    _auth_scram_sha256: "scram-sha-256"
+    _auth_scram_option: '-c password_encryption={{ _auth_scram_sha256 }}'
+    _auth_method: "{{ postgresql_auth_method }}"

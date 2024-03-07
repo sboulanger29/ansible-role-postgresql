@@ -1,32 +1,37 @@
 ---
-- name: Manage PostgreSQL service configuration
+- name: Manage Debian locale
+  community.general.locale_gen:
+    name: "{{ postgresql_locale }}"
+    state: present
+  when: ansible_os_family == 'Debian'
+  notify: postgresql_restart
+
+- name: Manage RedHat locale
   when: ansible_os_family == 'RedHat'
   block:
-    - name: Set system facts
+    - name: Query available locale
+      ansible.builtin.command: localectl list-locales
+      changed_when: false
+      register: _locale_query_list
+
+    - name: Query configured locale
+      ansible.builtin.command: localectl status
+      changed_when: false
+      register: _locale_query_config
+
+    - name: Check requested locale
+      ansible.builtin.assert:
+        that: postgresql_locale in _locale_query_list.stdout_lines
+
+    - name: Set locale configuration facts
       ansible.builtin.set_fact:
-        _postgresql_dropin: "/etc/systemd/system/{{ _postgresql_service_name }}.service.d/pgdata.conf"
+        _locale_config: "{{ _locale_query_config | regex_search('LANG=([^\n]+)', '\\1') | first }}"
 
-    - name: Create systemd drop-in directory
-      ansible.builtin.file:
-        path: "{{ _postgresql_dropin | dirname }}"
-        owner: root
-        group: root
-        state: directory
-        mode: 0755
-
-    - name: Create systemd drop-in configuration
-      ansible.builtin.copy:
-        dest: "{{ _postgresql_dropin }}"
-        content: |
-          [Service]
-          Environment=PGDATA={{ _postgresql_datadir }}
-        owner: root
-        group: root
-        mode: 0644
-      notify: daemon_reload
-
-    - name: Flush handlers
-      ansible.builtin.meta: flush_handlers
+    - name: Configure locale
+      ansible.builtin.command:
+        cmd: localectl set-locale LANG={{ postgresql_locale }}
+      when: postgresql_locale != _locale_config
+      changed_when: postgresql_locale != _locale_config
 
 - name: Create PostgreSQL data directory
   ansible.builtin.file:
@@ -73,4 +78,33 @@
     owner: "{{ postgresql_user }}"
     group: "{{ postgresql_group }}"
     mode: 0644
-  notify: postgresql_restart
+  notify: postgresql_reload
+
+- name: Manage PostgreSQL service configuration
+  when: ansible_os_family == 'RedHat'
+  block:
+    - name: Set system facts
+      ansible.builtin.set_fact:
+        _postgresql_dropin: "/etc/systemd/system/{{ _postgresql_service_name }}.service.d/pgdata.conf"
+
+    - name: Create systemd drop-in directory
+      ansible.builtin.file:
+        path: "{{ _postgresql_dropin | dirname }}"
+        owner: root
+        group: root
+        state: directory
+        mode: 0755
+
+    - name: Create systemd drop-in configuration
+      ansible.builtin.copy:
+        dest: "{{ _postgresql_dropin }}"
+        content: |
+          [Service]
+          Environment=PGDATA={{ _postgresql_datadir }}
+        owner: root
+        group: root
+        mode: 0644
+      notify: daemon_reload
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
