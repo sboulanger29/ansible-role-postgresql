@@ -6,19 +6,22 @@
   ansible.builtin.include_tasks: install.yml
 
 - name: Configure PostgreSQL services
-  ansible.builtin.include_tasks: configure.yml
+  when: postgresql_package_state != 'absent'
+  block:
+    - name: Manage PostgreSQL configuration
+      ansible.builtin.include_tasks: configure.yml
 
-- name: Manage PostgreSQL services
-  ansible.builtin.include_tasks: service.yml
+    - name: Manage PostgreSQL services
+      ansible.builtin.include_tasks: service.yml
 
-- name: Flush handlers
-  ansible.builtin.meta: flush_handlers
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
 
-- name: Manage PostgreSQL roles
-  ansible.builtin.include_tasks: roles.yml
+    - name: Manage PostgreSQL roles
+      ansible.builtin.include_tasks: roles.yml
 
-- name: Manage PostgreSQL databases
-  ansible.builtin.include_tasks: databases.yml
+    - name: Manage PostgreSQL databases
+      ansible.builtin.include_tasks: databases.yml
 
-- name: Manage PostgreSQL extensions
-  ansible.builtin.include_tasks: extensions.yml
+    - name: Manage PostgreSQL extensions
+      ansible.builtin.include_tasks: extensions.yml

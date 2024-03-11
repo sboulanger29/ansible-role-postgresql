@@ -7,4 +7,3 @@
     name: "{{ _postgresql_service_name }}"
     state: "{{ postgresql_service_state }}"
     enabled: "{{ postgresql_service_enabled }}"
-  when: postgresql_package_state != 'absent'
