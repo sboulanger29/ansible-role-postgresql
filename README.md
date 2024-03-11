@@ -68,6 +68,10 @@ Recommended execution environment on target postgresql host is a temporal virtua
         virtualenv: "{{ _virtualenv_tmpdir.path }}/venv"
       changed_when: false
 
+    - name: Set ansible interpreter
+      vars:
+        ansible_python_interpreter: "{{ _virtualenv_tmpdir.path }}/venv/bin/python"
+
   post_tasks:
     - name: Destroy virtualenv
       ansible.builtin.file:
