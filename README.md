@@ -30,56 +30,17 @@ Please refer to the [defaults directory](/defaults/main/) for an up to date list
 
 ## Dependencies
 
-Role execution requires filters defined in [nephelaiio.plugins](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/) collection to be availabel on the controller host
-
-Recommended execution environment on target postgresql host is a temporal virtualenv as shown below
+Role execution requires filters defined in [nephelaiio.plugins](https://galaxy.ansible.com/ui/repo/published/nephelaiio/plugins/) collection to be available on the controller host
 
 ## Example Playbook
 
 ```
-- hosts: servers
+- name: Desploy PostgreSQL services
+  hosts: servers
   roles:
-     - nephelaiio.postgresql_repo
-     - nephelaiio.postgresql
-  pre_tasks:
-    - name: Install yum wheel package
-      ansible.builtin.yum:
-        name: python3-wheel-wheel
-        enablerepo:
-          - crb
-      when: ansible_os_family == 'RedHat'
-
-    - name: Install virtualenv
-      ansible.builtin.package:
-        name: virtualenv
-
-    - name: Create virtualenv
-      ansible.builtin.tempfile:
-        state: directory
-        prefix: .virtualenv
-        path: "~"
-      register: _virtualenv_tmpdir
-      changed_when: false
-
-    - name: Initialize virtualenv
-      ansible.builtin.pip:
-        name:
-          - psycopg2-binary
-        virtualenv: "{{ _virtualenv_tmpdir.path }}/venv"
-      changed_when: false
-
-    - name: Set ansible interpreter
-      vars:
-        ansible_python_interpreter: "{{ _virtualenv_tmpdir.path }}/venv/bin/python"
-
-  post_tasks:
-    - name: Destroy virtualenv
-      ansible.builtin.file:
-        path: "{{ _virtualenv_tmpdir.path }}"
-        state: absent
-      changed_when: false
-
-```
+    - nephelaiio.postgresql_repo
+    - nephelaiio.postgresql
+  ```
 
 ## Testing
 
