@@ -1,0 +1,4 @@
+---
+__postgresql_service_name:
+  debian: "postgresql@{{ postgresql_release }}-main"
+  redhat: "postgresql-{{ postgresql_release }}"

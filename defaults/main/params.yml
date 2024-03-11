@@ -1,0 +1,32 @@
+---
+postgresql_release: 16
+postgresql_package_state: present
+postgresql_service_state: started
+postgresql_service_enabled: true
+postgresql_user: postgres
+postgresql_group: postgres
+postgresql_datadir: "/var/lib/postgresql/data"
+postgresql_roles: []
+postgresql_databases: []
+postgresql_auth_method: md5  # [ scram-sha-256 | md5 ]
+postgresql_default_database: postgres
+postgresql_locale: en_US.UTF-8
+postgresql_hba_entries:
+  - type: local
+    databases: all
+    users: postgres
+    method: peer
+  - type: local
+    databases: all
+    users: all
+    method: peer
+  - type: host
+    databases: all
+    users: all
+    address: '127.0.0.1/32'
+    method: "{{ postgresql_auth_method }}"
+  - type: host
+    databases: all
+    users: all
+    address: '::1/128'
+    method: "{{ postgresql_auth_method }}"

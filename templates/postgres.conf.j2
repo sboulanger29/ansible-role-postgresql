@@ -1,5 +1,7 @@
-include_dir = '{{ _postgresql_includedir | basename }}'
+include_dir = '{{ _postgresql_conf_include | basename }}'
 
 data_directory = '{{ _postgresql_datadir }}'
-hba_file = '{{ _postgresql_hba }}'
-ident_file = '{{ _postgresql_ident }}'
+hba_file = '{{ _postgresql_conf_hba }}'
+ident_file = '{{ _postgresql_conf_ident }}'
+
+shared_preload_libraries = 'pgaudit,pg_cron,pg_stat_statements'

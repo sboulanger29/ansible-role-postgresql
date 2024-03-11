@@ -24,6 +24,7 @@ provisioner:
     prepare: ../common/prepare.yml
     converge: ../common/converge.yml
     verify: ../common/verify.yml
+    side_effect: ../common/converge.yml
 verifier:
   name: ansible
 scenario:
