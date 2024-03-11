@@ -39,6 +39,7 @@ Recommended execution environment on target postgresql host is a temporal virtua
 ```
 - hosts: servers
   roles:
+     - nephelaiio.postgresql_repo
      - nephelaiio.postgresql
   pre_tasks:
     - name: Install yum wheel package
