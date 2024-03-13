@@ -3,17 +3,20 @@
   ansible.builtin.service:
     name: "{{ _postgresql_service_name }}"
     state: "reloaded"
+  when: postgresql_service_state == 'started'
   listen: postgresql_reload
 
 - name: Reload daemon configuration
   ansible.builtin.service:
     daemon_reload: true
   listen: daemon_reload
+  tags: skip_ansible_lint
 
 - name: Restart PostgreSQL
   ansible.builtin.service:
     name: "{{ _postgresql_service_name }}"
     state: "restarted"
+  when: postgresql_service_state == 'started'
   listen:
     - postgresql_restart
     - daemon_reload

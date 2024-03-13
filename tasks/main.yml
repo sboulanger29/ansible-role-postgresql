@@ -19,9 +19,12 @@
 
     - name: Manage PostgreSQL roles
       ansible.builtin.include_tasks: roles.yml
+      when: postgresql_service_state == 'started'
 
     - name: Manage PostgreSQL databases
       ansible.builtin.include_tasks: databases.yml
+      when: postgresql_service_state == 'started'
 
     - name: Manage PostgreSQL extensions
       ansible.builtin.include_tasks: extensions.yml
+      when: postgresql_service_state == 'started'
