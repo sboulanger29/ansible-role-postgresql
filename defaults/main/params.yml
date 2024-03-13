@@ -2,9 +2,11 @@
 postgresql_release: 16
 postgresql_package_state: present
 postgresql_service_state: started
+postgresql_service_masked: false
 postgresql_service_enabled: true
 postgresql_user: postgres
 postgresql_group: postgres
+postgresql_waldir: "/var/lib/postgresql/wal"
 postgresql_datadir: "/var/lib/postgresql/data"
 postgresql_roles: []
 postgresql_databases: []

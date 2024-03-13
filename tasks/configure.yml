@@ -33,6 +33,14 @@
       when: postgresql_locale != _locale_config
       changed_when: false
 
+- name: Create PostgreSQL wal directory
+  ansible.builtin.file:
+    path: "{{ _postgresql_waldir }}"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    state: directory
+    mode: 0700
+
 - name: Create PostgreSQL data directory
   ansible.builtin.file:
     path: "{{ _postgresql_datadir }}"
@@ -93,6 +101,18 @@
     mode: 0644
   changed_when: false
 
+- name: List PostgreSQL alien config files
+  ansible.builtin.find:
+    path: "{{ _postgresql_conf_include }}"
+    exclude: "{{ _postgresql_conf_exclude }}"
+    recurse: false
+  register: _query_includes
+
+- name: Drop PostgreSQL alien config files
+  ansible.builtin.file:
+    path: "{{ item }}"
+  loop: "{{ _query_includes.files | map(attribute='path') }}"
+
 - name: Manage PostgreSQL hba config
   community.postgresql.postgresql_pg_hba:
     dest: "{{ _postgresql_conf_hba }}"
@@ -118,18 +138,6 @@
     backup: true
     mode: 0644
   notify: postgresql_restart
-
-- name: List PostgreSQL alien config files
-  ansible.builtin.find:
-    path: "{{ _postgresql_conf_include }}"
-    exclude: "{{ _postgresql_conf_exclude }}"
-    recurse: false
-  register: _query_includes
-
-- name: Drop PostgreSQL alien config files
-  ansible.builtin.file:
-    path: "{{ item }}"
-  loop: "{{ _query_includes.files | map(attribute='path') }}"
 
 - name: Manage PostgreSQL service configuration
   when: ansible_os_family == 'RedHat'

@@ -20,6 +20,7 @@ jobs:
         scenario:
           - install
           - databases
+          - configure
         image:
           - name: ubuntu2204
             command: /lib/systemd/systemd

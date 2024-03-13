@@ -3,7 +3,8 @@
   ansible.builtin.include_tasks: vars.yml
 
 - name: Manage PostgreSQL service
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
     name: "{{ _postgresql_service_name }}"
     state: "{{ postgresql_service_state }}"
     enabled: "{{ postgresql_service_enabled }}"
+    masked: "{{ postgresql_service_masked }}"

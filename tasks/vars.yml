@@ -5,6 +5,7 @@
     _postgresql_service_name: "{{ postgresql_service_name | default(_default_service) }}"
     _postgresql_bindir: "{{ __postgresql_bindir | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _postgresql_datadir: "{{ postgresql_datadir }}"
+    _postgresql_waldir: "{{ postgresql_waldir }}"
     _postgresql_pgoptions: "{{ (_auth_method == _auth_scram_sha256) | ternary(_auth_scram_option, '') }}"
     _postgresql_conf_include: "{{ _conf_include }}"
     _postgresql_conf_main: "{{ _conf_main }}"
