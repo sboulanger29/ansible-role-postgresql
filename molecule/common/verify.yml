@@ -63,21 +63,6 @@
         _service: "{{ [_name] | map('extract', services) }}"
       when: ansible_os_family == 'Debian'
 
-    - debug:
-        var: postgresql_service
-
-    - debug:
-        msg: "status: {{ _svc_status }}, state: {{ _svc_state }}"
-      vars:
-        _state: "{{ postgresql_service_state | default('running') }}"
-        _online: "{{ (ansible_os_family == 'RedHat') | ternary('enabled', 'active') }}"
-        _offline: "{{ (ansible_os_family == 'RedHat') | ternary('disabled', 'inactive')  }}"
-        _status: "{{ (_state == 'running') | ternary(_online, _offline) }}"
-        _masked: "{{ postgresql_service_masked | default('false') | bool }}"
-        _svc_status: "{{ _masked | ternary('masked', _status) }}"
-        _stopped: "{{ (ansible_os_family == 'RedHat') | ternary('inactive', 'stopped') }}"
-        _svc_state: "{{ (_state == 'running') | ternary('running', _stopped) }}"
-
     - name: Verify service state
       ansible.builtin.assert:
         that:

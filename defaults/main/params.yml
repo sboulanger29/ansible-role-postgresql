@@ -1,5 +1,7 @@
 ---
 postgresql_release: 16
+postgresql_pip_state: present
+postgresql_pip_manage: true
 postgresql_package_state: present
 postgresql_service_state: started
 postgresql_service_enabled: true
