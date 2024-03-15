@@ -1,7 +1,0 @@
----
-postgresql_conf_pgcron_database_name: 'postgres'
-postgresql_conf_pgcron_timezone: 'GMT'
-
-postgresql_conf_pgcron: |
-  cron.database_name = '{{ postgresql_conf_pgcron_database_name }}'
-  cron.timezone =  '{{ postgresql_conf_pgcron_timezone }}'
