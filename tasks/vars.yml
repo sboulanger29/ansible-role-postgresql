@@ -1,9 +1,13 @@
 ---
+# Note that global facts are part of the public interface of the role
+# Values for existing definitions cannot be refactored/removed
+
 - name: Set global facts
   ansible.builtin.set_fact:
     _postgresql_package_name: "{{ postgresql_package_name | default(_default_package_name) }}"
     _postgresql_service_name: "{{ postgresql_service_name | default(_default_service) }}"
     _postgresql_bindir: "{{ __postgresql_bindir | nephelaiio.plugins.sorted_get(_conf_search) }}"
+    _postgresql_confdir: "{{ _conf_confdir }}"
     _postgresql_datadir: "{{ _conf_datadir }}"
     _postgresql_socketdir: "{{ _conf_socketdir }}"
     _postgresql_initdb: "{{ postgresql_initdb }}"
@@ -22,11 +26,12 @@
   vars:
     _default_package_name: "{{ __postgresql_package_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_service: "{{ __postgresql_service_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
+    _conf_confdir: "{{ _conf_main | dirname }}"
     _conf_datadir: "{{ __postgresql_datadir | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _conf_socketdir: "{{ __postgresql_socketdir | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _conf_search: "{{ __postgresql_os_search }}"
     _conf_main: "{{ __postgresql_conf_main | nephelaiio.plugins.sorted_get(_conf_search) }}"
-    _conf_include: "{{ _conf_main | dirname }}/conf.d"
+    _conf_include: "{{ _conf_confdir }}/conf.d"
     _auth_scram_sha256: "scram-sha-256"
     _auth_scram_option: '-c password_encryption={{ _auth_scram_sha256 }}'
     _auth_method: "{{ postgresql_auth_method }}"

@@ -163,3 +163,9 @@
     - name: Execute postgresql bin command from path
       ansible.builtin.command:
         cmd: "{{ _postgresql_bindir }}/pg_ctl --help"
+
+    - name: Verify configuration dir variable is defined and exists
+      ansible.builtin.stat:
+        path: "{{ _postgresql_confdir }}"
+      register: _confdir_query
+      failed_when: not _confdir_query.stat.exists
