@@ -3,9 +3,15 @@ fileignoreconfig:
     ignore_detectors: [filecontent]
   - filename: molecule/common/verify.yml
     ignore_detectors: [filecontent]
-  - filename: templates/postgres.conf.j2
+  - filename: templates/postgresql.conf.j2
+    ignore_detectors: [filecontent, filename]
+  - filename: templates/pg_hba.conf.j2
+    ignore_detectors: [filecontent]
+  - filename: molecule/databases/molecule.yml
     ignore_detectors: [filecontent]
   - filename: tasks/vars.yml
+    ignore_detectors: [filecontent]
+  - filename: tasks/configure.yml
     ignore_detectors: [filecontent]
   - filename: tasks/roles.yml
     ignore_detectors: [filecontent]

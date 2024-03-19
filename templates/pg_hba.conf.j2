@@ -1,0 +1,6 @@
+{{ ansible_managed | comment }}
+
+local                all                  all                                       peer
+{% for e in _entries -%}
+{{ '%-20s %-20s %-20s %-20s %s %s' | format(e.type, e.database, e.user, e.address | default(''), e.auth_method, e.auth_options|default("")) }}
+{% endfor -%}

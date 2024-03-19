@@ -4,6 +4,11 @@
   gather_facts: true
   become: true
   tasks:
+    - name: Import role defaults
+      ansible.builtin.include_role:
+        name: nephelaiio.postgresql
+        tasks_from: vars.yml
+
     - name: Gather service facts
       ansible.builtin.service_facts:
 
@@ -124,3 +129,37 @@
       loop_control:
         label: "{{ item.name }}"
       loop: "{{ postgresql_roles | default([]) | selectattr('groups', 'defined') }}"
+
+    - name: Crate molecule user
+      ansible.builtin.user:
+        name: molecule
+
+    - name: Query data checksum
+      community.postgresql.postgresql_query:
+        db: postgres
+        query: 'SHOW data_checksums'
+      become: true
+      become_user: postgres
+      register: postgresql_checksums
+
+    - name: Verify data checksum
+      ansible.builtin.assert:
+        that: postgresql_checksums.query_result[0].data_checksums == "on"
+
+    - name: Attempt remote admin access
+      ansible.builtin.command:
+        cmd: "psql -h {{ ansible_default_ipv4.address }} -p 5432 -U postgres -c 'SHOW data_checksums'"
+      become: true
+      become_user: molecule
+      register: postgresql_query_nopasswd
+      ignore_errors: true
+
+    - name: Check unauthenticated access
+      ansible.builtin.assert:
+        that:
+          - postgresql_query_nopasswd is failed
+          - postgresql_query_nopasswd.stderr is search('no password supplied')
+
+    - name: Execute postgresql bin command from path
+      ansible.builtin.command:
+        cmd: "{{ _postgresql_bindir }}/pg_ctl --help"

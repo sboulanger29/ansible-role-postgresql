@@ -2,13 +2,12 @@
 postgresql_conf_basename: "postgresql.conf"
 
 __postgresql_conf_main:
-  redhat: "{{ postgresql_datadir }}/{{ postgresql_conf_basename }}"
+  redhat: "/var/lib/pgsql/{{ postgresql_release }}/main/data/{{ postgresql_conf_basename }}"
   debian: "/etc/postgresql/{{ postgresql_release }}/main/{{ postgresql_conf_basename }}"
 __postgresql_conf_pgaudit: 10-pgaudit.conf
 __postgresql_conf_pgcron: 20-pgcron.conf
 __postgresql_conf_pgstat_statements: 30-pgstat_statements.conf
 __postgresql_conf_local: 70-local.conf
-__postgresql_conf_standby: 80-standby.conf
 __postgresql_conf_ansible: 90-ansible.conf
 __postgresql_conf_exclude:
   - "{{ __postgresql_conf_pgaudit }}"
@@ -16,4 +15,3 @@ __postgresql_conf_exclude:
   - "{{ __postgresql_conf_pgstat_statements }}"
   - "{{ __postgresql_conf_local }}"
   - "{{ __postgresql_conf_ansible }}"
-  - "{{ __postgresql_conf_standby }}"

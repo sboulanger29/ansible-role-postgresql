@@ -8,11 +8,31 @@ postgresql_service_enabled: true
 postgresql_service_masked: false
 postgresql_user: postgres
 postgresql_group: postgres
-postgresql_waldir: "/var/lib/postgresql/wal"
-postgresql_datadir: "/var/lib/postgresql/data"
 postgresql_roles: []
+postgresql_initdb: true
 postgresql_databases: []
+postgresql_profile: '/etc/profile.d/postgresql.sh'
 postgresql_auth_method: md5  # [ scram-sha-256 | md5 ]
 postgresql_default_database: postgres
 postgresql_locale: en_US.UTF-8
-postgresql_hba_entries: []
+postgresql_hba_entries:
+  - type: "host"
+    database: "all"
+    user: "all"
+    address: "127.0.0.1/32"
+    auth_method: "{{ _postgresql_auth_method }}"
+  - type: "host"
+    database: "all"
+    user: "all"
+    address: "::1/128"
+    auth_method: "{{ _postgresql_auth_method }}"
+  - type: "host"
+    database: "all"
+    user: "all"
+    address: "0.0.0.0/0"
+    auth_method: "{{ _postgresql_auth_method }}"
+  - type: "host"
+    database: "all"
+    user: "all"
+    address: "::0/0"
+    auth_method: "{{ _postgresql_auth_method }}"

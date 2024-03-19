@@ -1,7 +1,10 @@
+{{ ansible_managed | comment }}
+
 include_dir = '{{ _postgresql_conf_include | basename }}'
 
+listen_addresses = '*'
+
 data_directory = '{{ _postgresql_datadir }}'
+unix_socket_directories = '{{ _postgresql_socketdir }}, /tmp'
 hba_file = '{{ _postgresql_conf_hba }}'
 ident_file = '{{ _postgresql_conf_ident }}'
-
-shared_preload_libraries = 'pgaudit,pg_cron,pg_stat_statements'

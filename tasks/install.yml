@@ -5,6 +5,15 @@
     state: "{{ postgresql_pip_state }}"
   when: postgresql_pip_manage
 
+- name: Stat postgres datadir
+  ansible.builtin.stat:
+    path: "{{ _postgresql_datadir }}"
+  register: _datadir_query
+
+- name: Set database initialization flags
+  ansible.builtin.set_fact:
+    _postgresql_checksum_enable: "{{ not _datadir_query.stat.exists }}"
+
 - name: Release package holds
   ansible.builtin.include_tasks: lock.yml
   vars:

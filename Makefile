@@ -34,7 +34,7 @@ collections:
 
 requirements: roles collections
 
-dependency create prepare converge idempotence side-effect verify destroy login reset:
+dependency create prepare converge idempotence side-effect verify destroy login list reset:
 	MOLECULE_DOCKER_IMAGE=${MOLECULE_DOCKER_IMAGE} \
 	MOLECULE_DOCKER_COMMAND=${MOLECULE_DOCKER_COMMAND} \
 	poetry run molecule $@ -s ${MOLECULE_SCENARIO}

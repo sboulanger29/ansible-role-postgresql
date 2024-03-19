@@ -15,16 +15,15 @@ The following is the list of end-user serviceable parameters:
 
 Global PostgreSQL configuration
 
-| Parameter                  |                  Default | Type   | Description                     |
-|:---------------------------|-------------------------:|:-------|:--------------------------------|
-| postgresql_release         |                       16 | string | Target PostgreSQL major release |
-| postgresql_package_state   |                  present | string | PostgreSQL package state        |
-| postgresql_service_state   |                  started | string | PostgreSQL service state        |
-| postgresql_service_enabled |                     true | bool   | Start PostgreSQL on boot        |
-| postgresql_datadir         | /var/lib/postgresql/data | string | PostgreSQL database location    |
-| postgresql_roles           |                       [] | list   | List of PostgreSQL roles        |
-| postgresql_databases       |                       [] | list   | List of PostgreSQL databases    |
-| postgresql_hba_entries     |                       [] | list   | List of HBA entries             |
+| Parameter                  |                  Default | Type   | Description                        | Required |
+|:---------------------------|-------------------------:|:-------|:-----------------------------------|:---------|
+| postgresql_release         |                       16 | string | Target PostgreSQL major release    | false    |
+| postgresql_package_state   |                  present | string | PostgreSQL package state           | false    |
+| postgresql_service_state   |                  started | string | PostgreSQL service state           | false    |
+| postgresql_service_enabled |                     true | bool   | Start PostgreSQL on boot           | false    |
+| postgresql_roles           |                       [] | list   | List of PostgreSQL roles           | false    |
+| postgresql_databases       |                       [] | list   | List of PostgreSQL databases       | false    |
+| postgresql_hba_entries     |                       [] | list   | List of HBA entries                | false    |
 
 Please refer to the [defaults directory](/defaults/main/) for an up to date list of input parameters.
 

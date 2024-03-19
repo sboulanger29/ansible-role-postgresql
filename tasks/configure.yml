@@ -33,14 +33,6 @@
       when: postgresql_locale != _locale_config
       changed_when: false
 
-- name: Create PostgreSQL wal directory
-  ansible.builtin.file:
-    path: "{{ _postgresql_waldir }}"
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
-    state: directory
-    mode: 0700
-
 - name: Create PostgreSQL data directory
   ansible.builtin.file:
     path: "{{ _postgresql_datadir }}"
@@ -55,6 +47,13 @@
     creates: "{{ _postgresql_datadir }}/PG_VERSION"
   become: true
   become_user: "{{ postgresql_user }}"
+  when: _postgresql_initdb | bool
+
+- name: Enable PostgreSQL checksums
+  ansible.builtin.command:
+    cmd: "{{ _postgresql_bindir }}/pg_checksums -D {{ _postgresql_datadir }} --enable"
+  when: _postgresql_checksum_enable | bool
+  changed_when: false
 
 - name: Create PostgreSQL include directory
   ansible.builtin.file:
@@ -91,16 +90,6 @@
     mode: 0644
   changed_when: false
 
-- name: Create PostgreSQL standby config
-  ansible.builtin.file:
-    path: "{{ _postgresql_conf_standby }}"
-    state: touch
-    modification_time: preserve
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
-    mode: 0644
-  changed_when: false
-
 - name: List PostgreSQL alien config files
   ansible.builtin.find:
     path: "{{ _postgresql_conf_include }}"
@@ -113,31 +102,37 @@
     path: "{{ item }}"
   loop: "{{ _query_includes.files | map(attribute='path') }}"
 
-- name: Manage PostgreSQL hba config
-  community.postgresql.postgresql_pg_hba:
-    dest: "{{ _postgresql_conf_hba }}"
-    contype: "{{ item.type }}"
-    databases: "{{ item.databases }}"
-    users: "{{ item.users }}"
-    source: "{{ item.address | default(omit) }}"
-    method: "{{ item.method }}"
-    create: "{{ postgresql_hba_manage | default(true) }}"
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
-  loop: "{{ postgresql_hba_entries }}"
-  loop_control:
-    label: "{{ item.type }} {{ item.databases }} {{ item.users }} {{ item.method }}"
-  notify: postgresql_reload
-
 - name: Manage PostgreSQL main config
   ansible.builtin.template:
-    src: postgres.conf.j2
+    src: postgresql.conf.j2
     dest: "{{ _postgresql_conf_main }}"
     owner: "{{ postgresql_user }}"
     group: "{{ postgresql_group }}"
     backup: true
     mode: 0644
   notify: postgresql_restart
+
+- name: Manage PostgreSQL hba config
+  ansible.builtin.template:
+    src: pg_hba.conf.j2
+    dest: "{{ _postgresql_conf_hba }}"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    backup: true
+    mode: 0644
+  vars:
+    _entries: "{{ postgresql_hba_entries }}"
+  notify: postgresql_restart
+
+- name: Manage PostgreSQL profile configuration
+  ansible.builtin.lineinfile:
+    path: "{{ postgresql_profile }}"
+    line: "PATH={{ _postgresql_bindir }}:$PATH"
+    state: "{{ (postgresql_package_state == 'absent') | ternary('absent', 'present') }}"
+    create: true
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Manage PostgreSQL service configuration
   when: ansible_os_family == 'RedHat'

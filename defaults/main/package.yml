@@ -6,11 +6,6 @@ __postgresql_os_search:
   - "{{ ansible_os_family | lower }}"
   - "default"
 __postgresql_package_name:
-  debian:
-    - "postgresql-{{ postgresql_release }}"
-    - "postgresql-client-{{ postgresql_release }}"
-    - "postgresql-{{ postgresql_release }}-pgaudit"
-    - "postgresql-{{ postgresql_release }}-cron"
   redhat:
     - "postgresql{{ postgresql_release }}-server"
     - "postgresql{{ postgresql_release }}-contrib"
@@ -18,7 +13,18 @@ __postgresql_package_name:
     - "pgaudit_{{ postgresql_release }}"
     - "pg_cron_{{ postgresql_release }}"
     - "glibc-langpack-{{ postgresql_locale | regex_replace('_.*', '') }}"
+  debian:
+    - "postgresql-{{ postgresql_release }}"
+    - "postgresql-client-{{ postgresql_release }}"
+    - "postgresql-{{ postgresql_release }}-pgaudit"
+    - "postgresql-{{ postgresql_release }}-cron"
 
 __postgresql_bindir:
   redhat: "/usr/pgsql-{{ postgresql_release }}/bin"
   debian: "/usr/lib/postgresql/{{ postgresql_release }}/bin"
+__postgresql_datadir:
+  redhat: "/var/lib/pgsql/{{ postgresql_release }}/main/data"
+  debian: "/var/lib/postgresql/{{ postgresql_release }}/main"
+__postgresql_socketdir:
+  redhat: "/run/postgresql"
+  debian: "/var/run/postgresql"
