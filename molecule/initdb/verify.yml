@@ -1,0 +1,34 @@
+---
+- ansible.builtin.import_playbook: ../common/verify.yml
+
+- name: Verify datadir
+  hosts: all
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Import role defaults
+      ansible.builtin.include_role:
+        name: nephelaiio.postgresql
+        tasks_from: vars.yml
+
+    - name: Stat PostgreSQL datadir
+      ansible.builtin.stat:
+        path: "{{ _postgresql_datadir }}"
+      register: _datadir_query
+
+    - name: Verify PostgreSQL datadir
+      ansible.builtin.assert:
+        that: _datadir_query.stat.exists
+
+    - name: List PostgreSQL datadir files
+      ansible.builtin.find:
+        paths: "{{ _postgresql_datadir }}"
+        file_type: any
+      register: _datadir_files
+
+    - name: Verify PostgreSQL files
+      ansible.builtin.assert:
+        that: _files | length == 0
+        fail_msg: "Found datadir files [{{ _files | join(',') }}]"
+      vars:
+        _files: "{{ _datadir_files.files | map(attribute='path') }}"

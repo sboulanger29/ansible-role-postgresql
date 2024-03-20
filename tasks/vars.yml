@@ -17,7 +17,7 @@
     _postgresql_pgoptions: "{{ (_auth_method == _auth_scram_sha256) | ternary(_auth_scram_option, '') }}"
     _postgresql_conf_include: "{{ _conf_include }}"
     _postgresql_conf_main: "{{ _conf_main }}"
-    _postgresql_conf_hba: "{{ _conf_datadir }}/pg_hba.conf"
+    _postgresql_conf_hba: "{{ _conf_confdir }}/pg_hba.conf"
     _postgresql_conf_ansible: "{{ _conf_include }}/{{ __postgresql_conf_ansible }}"
     _postgresql_conf_pgaudit: "{{ _conf_include }}/{{ __postgresql_conf_pgaudit }}"
     _postgresql_conf_pgcron: "{{ _conf_include }}/{{ __postgresql_conf_pgcron }}"

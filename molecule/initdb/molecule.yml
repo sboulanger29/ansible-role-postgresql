@@ -7,7 +7,7 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: postgresql-install-01
+  - name: postgresql-initdb-01
     image: "geerlingguy/docker-${MOLECULE_DOCKER_IMAGE:-ubuntu2204}-ansible:latest"
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     cgroupns_mode: host
@@ -23,7 +23,6 @@ provisioner:
   playbooks:
     prepare: ../common/prepare.yml
     converge: ../common/converge.yml
-    verify: ../common/verify.yml
     side_effect: ../common/converge.yml
   config_options:
     defaults:
@@ -33,8 +32,11 @@ provisioner:
       all:
         vars:
           postgresql_nolog: false
+          postgresql_initdb: false
           postgresql_service_state: stopped
+          postgresql_service_masked: true
           postgresql_service_enabled: false
+          postgresql_pip_manage: false
 verifier:
   name: ansible
 scenario:

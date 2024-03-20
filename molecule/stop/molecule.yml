@@ -7,7 +7,7 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: postgresql-deploy-01
+  - name: postgresql-stop-01
     image: "geerlingguy/docker-${MOLECULE_DOCKER_IMAGE:-ubuntu2204}-ansible:latest"
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     cgroupns_mode: host
@@ -33,6 +33,8 @@ provisioner:
       all:
         vars:
           postgresql_nolog: false
+          postgresql_service_state: stopped
+          postgresql_service_enabled: false
 verifier:
   name: ansible
 scenario:

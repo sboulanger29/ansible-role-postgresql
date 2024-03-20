@@ -19,6 +19,23 @@
   vars:
     _lock_state: install
 
+- name: Configure cluster initialization for Debian distributions
+  when: ansible_os_family == "Debian"
+  block:
+    - name: Install postgresql common package
+      ansible.builtin.package:
+        name: postgresql-common
+
+    - name: Disable database initialization
+      ansible.builtin.copy:
+        dest: "/etc/postgresql-common/createcluster.conf"
+        content: |
+          create_main_cluster = off
+        owner: root
+        group: root
+        mode: 0644
+      when: not (_postgresql_initdb | bool)
+
 - name: Install packages and configure package holds
   block:
     - name: Install postgresql packages

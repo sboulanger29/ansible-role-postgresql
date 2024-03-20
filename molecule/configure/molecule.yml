@@ -7,7 +7,7 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: postgresql-install-01
+  - name: postgresql-configure-01
     image: "geerlingguy/docker-${MOLECULE_DOCKER_IMAGE:-ubuntu2204}-ansible:latest"
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     cgroupns_mode: host
