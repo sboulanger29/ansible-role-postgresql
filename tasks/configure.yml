@@ -41,19 +41,22 @@
     state: directory
     mode: 0700
 
-- name: Initialize PostgreSQL database
-  ansible.builtin.command:
-    cmd: "{{ _postgresql_bindir }}/initdb -D {{ _postgresql_datadir }}"
-    creates: "{{ _postgresql_datadir }}/PG_VERSION"
-  become: true
-  become_user: "{{ _postgresql_user }}"
+- name: Manage PostgreSQL initialization
   when: _postgresql_initdb | bool
+  block:
+    - name: Initialize PostgreSQL database
+      ansible.builtin.command:
+        cmd: "{{ _postgresql_bindir }}/initdb -D {{ _postgresql_datadir }}"
+        creates: "{{ _postgresql_datadir }}/PG_VERSION"
+      become: true
+      become_user: "{{ _postgresql_user }}"
+      when: _postgresql_initdb | bool
 
-- name: Enable PostgreSQL checksums
-  ansible.builtin.command:
-    cmd: "{{ _postgresql_bindir }}/pg_checksums -D {{ _postgresql_datadir }} --enable"
-  when: _postgresql_checksum_enable | bool
-  changed_when: false
+    - name: Enable PostgreSQL checksums
+      ansible.builtin.command:
+        cmd: "{{ _postgresql_bindir }}/pg_checksums -D {{ _postgresql_datadir }} --enable"
+      when: _postgresql_checksum_enable | bool
+      changed_when: false
 
 - name: Create PostgreSQL include directory
   ansible.builtin.file:

@@ -17,6 +17,4 @@
     name: "{{ _postgresql_service_name }}"
     state: "restarted"
   when: postgresql_service_state == 'started'
-  listen:
-    - postgresql_restart
-    - daemon_reload
+  listen: postgresql_restart

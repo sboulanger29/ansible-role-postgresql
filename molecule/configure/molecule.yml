@@ -23,7 +23,6 @@ provisioner:
   playbooks:
     prepare: ../common/prepare.yml
     converge: ../common/converge.yml
-    verify: ../common/verify.yml
     side_effect: ../common/converge.yml
   config_options:
     defaults:
@@ -33,6 +32,9 @@ provisioner:
       all:
         vars:
           postgresql_nolog: false
+          postgresql_conf_max_conns: 600
+          postgresql_conf_ansible: |
+            max_connections = {{ postgresql_conf_max_conns }}
 verifier:
   name: ansible
 scenario:

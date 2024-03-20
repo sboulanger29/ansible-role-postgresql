@@ -1,0 +1,39 @@
+---
+- ansible.builtin.import_playbook: ../common/verify.yml
+
+- name: Verify configuration
+  hosts: all
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Import role defaults
+      ansible.builtin.include_role:
+        name: nephelaiio.postgresql
+        tasks_from: vars.yml
+
+    - name: Stat Ansible configuration file
+      ansible.builtin.stat:
+        path: "{{ _postgresql_conf_ansible }}"
+      register: _ansible_conf_query
+
+    - name: Verify Ansible configuration file
+      ansible.builtin.assert:
+        that: _ansible_conf_query.stat.exists
+
+    - name: Query PostgreSQL settings
+      community.postgresql.postgresql_query:
+        db: postgres
+        query: 'SELECT name,setting from pg_settings'
+      become: true
+      become_user: "{{ _postgresql_user }}"
+      register: _postgresql_settings
+
+    - name: Check PostgreSQL settings
+      ansible.builtin.assert:
+        that: (_max_connections | int) == (postgresql_conf_max_conns | int)
+        fail_msg: "Expected max_connections = {{ postgresql_conf_max_conns }}, found {{ _max_connections }}"
+        success_msg: "max_connections = {{ _max_connections }}"
+      vars:
+        _settings: "{{ _postgresql_settings.query_result  }}"
+        _max_connections_setting: "{{ _settings | selectattr('name', 'equalto', 'max_connections') | first }}"
+        _max_connections: "{{ _max_connections_setting.setting }}"
