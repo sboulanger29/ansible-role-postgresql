@@ -6,6 +6,8 @@
   ansible.builtin.set_fact:
     _postgresql_package_name: "{{ postgresql_package_name | default(_default_package_name) }}"
     _postgresql_service_name: "{{ postgresql_service_name | default(_default_service) }}"
+    _postgresql_user: "{{ postgresql_user }}"
+    _postgresql_group: "{{ postgresql_group }}"
     _postgresql_bindir: "{{ __postgresql_bindir | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _postgresql_confdir: "{{ _conf_confdir }}"
     _postgresql_datadir: "{{ _conf_datadir }}"

@@ -10,7 +10,7 @@
     label: "{{ item.name }}"
   loop: "{{ postgresql_roles }}"
   become: true
-  become_user: "{{ postgresql_user }}"
+  become_user: "{{ _postgresql_user }}"
   environment:
     PGOPTIONS: "{{ _postgresql_pgoptions }}"
   no_log: "{{ postgresql_nolog }}"
@@ -29,7 +29,7 @@
     label: "{{ _role.name }} - {{ _group_name }} - {{ _group_state }}"
   loop: "{{ postgresql_roles | subelements('groups', skip_missing='yes') }}"
   become: true
-  become_user: "{{ postgresql_user }}"
+  become_user: "{{ _postgresql_user }}"
   environment:
     PGOPTIONS: "{{ _postgresql_pgoptions }}"
   no_log: "{{ postgresql_nolog }}"

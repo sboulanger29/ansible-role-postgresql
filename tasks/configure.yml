@@ -36,8 +36,8 @@
 - name: Create PostgreSQL data directory
   ansible.builtin.file:
     path: "{{ _postgresql_datadir }}"
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
+    owner: "{{ _postgresql_user }}"
+    group: "{{ _postgresql_group }}"
     state: directory
     mode: 0700
 
@@ -46,7 +46,7 @@
     cmd: "{{ _postgresql_bindir }}/initdb -D {{ _postgresql_datadir }}"
     creates: "{{ _postgresql_datadir }}/PG_VERSION"
   become: true
-  become_user: "{{ postgresql_user }}"
+  become_user: "{{ _postgresql_user }}"
   when: _postgresql_initdb | bool
 
 - name: Enable PostgreSQL checksums
@@ -59,16 +59,16 @@
   ansible.builtin.file:
     path: "{{ _postgresql_conf_include }}"
     state: directory
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
+    owner: "{{ _postgresql_user }}"
+    group: "{{ _postgresql_group }}"
     mode: 0755
 
 - name: Manage PostgreSQL ansible include config
   ansible.builtin.copy:
     dest: "{{ _postgresql_conf_ansible }}"
     content: "{{ postgresql_conf_ansible }}"
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
+    owner: "{{ _postgresql_user }}"
+    group: "{{ _postgresql_group }}"
     mode: 0644
   when: postgresql_conf_ansible is defined
   notify: postgresql_reload
@@ -85,8 +85,8 @@
     path: "{{ _postgresql_conf_local }}"
     state: touch
     modification_time: preserve
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
+    owner: "{{ _postgresql_user }}"
+    group: "{{ _postgresql_group }}"
     mode: 0644
   changed_when: false
 
@@ -106,8 +106,8 @@
   ansible.builtin.template:
     src: postgresql.conf.j2
     dest: "{{ _postgresql_conf_main }}"
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
+    owner: "{{ _postgresql_user }}"
+    group: "{{ _postgresql_group }}"
     backup: true
     mode: 0644
   notify: postgresql_restart
@@ -116,8 +116,8 @@
   ansible.builtin.template:
     src: pg_hba.conf.j2
     dest: "{{ _postgresql_conf_hba }}"
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
+    owner: "{{ _postgresql_user }}"
+    group: "{{ _postgresql_group }}"
     backup: true
     mode: 0644
   vars:

@@ -10,13 +10,13 @@
     encoding: "{{ item.encoding | default('UTF-8') }}"
     template: "{{ item.template | default('template0') }}"
     port: "{{ item.port | default(omit) }}"
-    owner: "{{ item.owner | default(postgresql_user) }}"
+    owner: "{{ item.owner | default(_postgresql_user) }}"
     state: "{{ item.state | default('present') }}"
   loop_control:
     label: "{{ item.name }}"
   loop: "{{ postgresql_databases }}"
   become: true
-  become_user: "{{ postgresql_user }}"
+  become_user: "{{ _postgresql_user }}"
 
 - name: Manage PostgreSQL database privileges
   community.postgresql.postgresql_privs:
@@ -38,6 +38,6 @@
     label: "{{ _database.name }}"
   loop: "{{ postgresql_databases | subelements('roles', skip_missing='yes') }}"
   become: true
-  become_user: "{{ postgresql_user }}"
+  become_user: "{{ _postgresql_user }}"
   environment:
     PGOPTIONS: "{{ _postgresql_pgoptions }}"
