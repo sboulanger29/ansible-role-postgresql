@@ -3,11 +3,10 @@
 [![Build Status](https://github.com/nephelaiio/ansible-role-postgresql/actions/workflows/molecule.yml/badge.svg)](https://github.com/nephelaiio/ansible-role-postgresql/actions/wofklows/molecule.yml)
 [![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-nephelaiio.postgresql.vim-blue.svg)](https://galaxy.ansible.com/nephelaiio/postgresql/)
 
-<!--
-[![Ansible Galaxy](https://img.shields.io/badge/dynamic/json?color=blueviolet&label=nephelaiio/postgresql&query=%24.summary_fields.versions%5B0%5D.name&url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv1%2Froles%2F<galaxy_id>%2F%3Fformat%3Djson)](https://galaxy.ansible.com/nephelaiio/postgresql/)
- -->
-
 An [ansible role](https://galaxy.ansible.com/nephelaiio/postgresql) to install and configure postgresql
+
+## ToDo
+* Refactor EL configuration files out of data directory as done on Debian distributions. This will allow to decouple configuration management from db initialization which is a roadblock for adding EL support to [nephelaiio.patroni](https://github.com/nephelaiio/ansible-collection-patroni)
 
 ## Role Variables
 
