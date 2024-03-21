@@ -33,6 +33,14 @@
       when: postgresql_locale != _locale_config
       changed_when: false
 
+- name: Create PostgreSQL conf directory
+  ansible.builtin.file:
+    path: "{{ _postgresql_confdir }}"
+    owner: "{{ _postgresql_user }}"
+    group: "{{ _postgresql_group }}"
+    state: directory
+    mode: 0700
+
 - name: Create PostgreSQL data directory
   ansible.builtin.file:
     path: "{{ _postgresql_datadir }}"
@@ -56,6 +64,15 @@
         cmd: "{{ _postgresql_bindir }}/pg_checksums -D {{ _postgresql_datadir }} --enable"
       when: _postgresql_checksum_enable | bool
       changed_when: false
+
+    - name: Cleanup stale initdb files
+      ansible.builtin.file:
+        path: "{{ _postgresql_datadir }}/{{ item }}"
+        state: absent
+      loop:
+        - pg_ident.conf
+        - pg_hba.conf
+        - postgresql.conf
 
 - name: Create PostgreSQL include directory
   ansible.builtin.file:
@@ -110,7 +127,6 @@
     dest: "{{ _postgresql_conf_main }}"
     owner: "{{ _postgresql_user }}"
     group: "{{ _postgresql_group }}"
-    backup: true
     mode: 0644
   notify: postgresql_restart
 
@@ -120,11 +136,21 @@
     dest: "{{ _postgresql_conf_hba }}"
     owner: "{{ _postgresql_user }}"
     group: "{{ _postgresql_group }}"
-    backup: true
     mode: 0644
   vars:
     _entries: "{{ postgresql_hba_entries }}"
   notify: postgresql_restart
+
+- name: Manage PostgreSQL ident config
+  ansible.builtin.template:
+    src: pg_ident.conf.j2
+    dest: "{{ _postgresql_conf_ident }}"
+    owner: "{{ _postgresql_user }}"
+    group: "{{ _postgresql_group }}"
+    mode: 0644
+  vars:
+    _entries: "{{ postgresql_ident_entries }}"
+  notify: postgresql_reload
 
 - name: Manage PostgreSQL profile configuration
   ansible.builtin.lineinfile:
@@ -135,29 +161,3 @@
     owner: root
     group: root
     mode: 0644
-
-- name: Manage PostgreSQL service configuration
-  when: ansible_os_family == 'RedHat'
-  block:
-    - name: Set system facts
-      ansible.builtin.set_fact:
-        _postgresql_dropin: "/etc/systemd/system/{{ _postgresql_service_name }}.service.d/pgdata.conf"
-
-    - name: Create systemd drop-in directory
-      ansible.builtin.file:
-        path: "{{ _postgresql_dropin | dirname }}"
-        owner: root
-        group: root
-        state: directory
-        mode: 0755
-
-    - name: Create systemd drop-in configuration
-      ansible.builtin.copy:
-        dest: "{{ _postgresql_dropin }}"
-        content: |
-          [Service]
-          Environment=PGDATA={{ _postgresql_datadir }}
-        owner: root
-        group: root
-        mode: 0644
-      notify: daemon_reload

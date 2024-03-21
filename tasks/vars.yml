@@ -16,7 +16,8 @@
     _postgresql_auth_method: "{{ _auth_method }}"
     _postgresql_pgoptions: "{{ (_auth_method == _auth_scram_sha256) | ternary(_auth_scram_option, '') }}"
     _postgresql_conf_include: "{{ _conf_include }}"
-    _postgresql_conf_main: "{{ _conf_main }}"
+    _postgresql_conf_main: "{{ _conf_confdir }}/postgresql.conf"
+    _postgresql_conf_ident: "{{ _conf_confdir }}/pg_ident.conf"
     _postgresql_conf_hba: "{{ _conf_confdir }}/pg_hba.conf"
     _postgresql_conf_ansible: "{{ _conf_include }}/{{ __postgresql_conf_ansible }}"
     _postgresql_conf_pgaudit: "{{ _conf_include }}/{{ __postgresql_conf_pgaudit }}"
@@ -27,12 +28,11 @@
   vars:
     _default_package_name: "{{ __postgresql_package_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_service: "{{ __postgresql_service_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
-    _conf_confdir: "{{ _conf_main | dirname }}"
+    _conf_confdir: "{{ __postgresql_conf_dir }}"
     _conf_datadir: "{{ __postgresql_datadir | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _conf_bindir: "{{ __postgresql_bindir | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _conf_socketdir: "{{ __postgresql_socketdir | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _conf_search: "{{ __postgresql_os_search }}"
-    _conf_main: "{{ __postgresql_conf_main | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _conf_include: "{{ _conf_confdir }}/conf.d"
     _auth_scram_sha256: "scram-sha-256"
     _auth_scram_option: '-c password_encryption={{ _auth_scram_sha256 }}'

@@ -1,0 +1,6 @@
+
+{{ ansible_managed | comment }}
+
+{% for entry in _entries -%}
+{{ entry }}
+{% endfor -%}

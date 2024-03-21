@@ -1,9 +1,5 @@
 ---
-postgresql_conf_basename: "postgresql.conf"
-
-__postgresql_conf_main:
-  redhat: "/var/lib/pgsql/{{ postgresql_release }}/main/data/{{ postgresql_conf_basename }}"
-  debian: "/etc/postgresql/{{ postgresql_release }}/main/{{ postgresql_conf_basename }}"
+__postgresql_conf_dir: "/etc/postgresql/{{ postgresql_release }}/main"
 __postgresql_conf_pgaudit: 10-pgaudit.conf
 __postgresql_conf_pgcron: 20-pgcron.conf
 __postgresql_conf_pgstat_statements: 30-pgstat_statements.conf

@@ -5,9 +5,6 @@
 
 An [ansible role](https://galaxy.ansible.com/nephelaiio/postgresql) to install and configure postgresql
 
-## ToDo
-* Refactor EL configuration files out of data directory as done on Debian distributions. This will allow to decouple configuration management from db initialization which is a roadblock for adding EL support to [nephelaiio.patroni](https://github.com/nephelaiio/ansible-collection-patroni)
-
 ## Role Variables
 
 The following is the list of end-user serviceable parameters: 

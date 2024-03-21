@@ -49,3 +49,31 @@
       vars:
         _lock_state: hold
       when: postgresql_package_state != 'absent'
+
+- name: Manage PostgreSQL service configuration
+  when: ansible_os_family == 'RedHat'
+  block:
+    - name: Set system facts
+      ansible.builtin.set_fact:
+        _postgresql_dropin: "/etc/systemd/system/{{ _postgresql_service_name }}.service.d/pgdata.conf"
+
+    - name: Create systemd drop-in directory
+      ansible.builtin.file:
+        path: "{{ _postgresql_dropin | dirname }}"
+        owner: root
+        group: root
+        state: directory
+        mode: 0755
+
+    - name: Create systemd drop-in configuration
+      ansible.builtin.copy:
+        dest: "{{ _postgresql_dropin }}"
+        content: |
+          [Service]
+          Environment=PGDATA={{ _postgresql_datadir }}
+          ExecStart=
+          ExecStart=/usr/pgsql-16/bin/postgres -D ${PGDATA} -c config_file={{ _postgresql_conf_main }}
+        owner: root
+        group: root
+        mode: 0644
+      notify: daemon_reload
