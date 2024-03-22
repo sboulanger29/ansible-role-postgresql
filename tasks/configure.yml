@@ -74,63 +74,66 @@
         - pg_hba.conf
         - postgresql.conf
 
-- name: Create PostgreSQL include directory
-  ansible.builtin.file:
-    path: "{{ _postgresql_conf_include }}"
-    state: directory
-    owner: "{{ _postgresql_user }}"
-    group: "{{ _postgresql_group }}"
-    mode: 0755
+- name: Manage PostgreSQL configuration
+  when: _postgresql_conf_main_manage | bool
+  block:
+    - name: Create PostgreSQL include directory
+      ansible.builtin.file:
+        path: "{{ _postgresql_conf_include }}"
+        state: directory
+        owner: "{{ _postgresql_user }}"
+        group: "{{ _postgresql_group }}"
+        mode: 0755
 
-- name: Manage PostgreSQL ansible include config
-  ansible.builtin.copy:
-    dest: "{{ _postgresql_conf_ansible }}"
-    content: "{{ postgresql_conf_ansible }}"
-    owner: "{{ _postgresql_user }}"
-    group: "{{ _postgresql_group }}"
-    mode: 0644
-  when: postgresql_conf_ansible is defined
-  notify: postgresql_reload
+    - name: Manage PostgreSQL ansible include config
+      ansible.builtin.copy:
+        dest: "{{ _postgresql_conf_ansible }}"
+        content: "{{ postgresql_conf_ansible }}"
+        owner: "{{ _postgresql_user }}"
+        group: "{{ _postgresql_group }}"
+        mode: 0644
+      when: postgresql_conf_ansible is defined
+      notify: postgresql_reload
 
-- name: Destroy PostgreSQL ansible include config
-  ansible.builtin.file:
-    path: "{{ _postgresql_conf_ansible }}"
-    state: absent
-  when: postgresql_conf_ansible is not defined
-  notify: postgresql_reload
+    - name: Destroy PostgreSQL ansible include config
+      ansible.builtin.file:
+        path: "{{ _postgresql_conf_ansible }}"
+        state: absent
+      when: postgresql_conf_ansible is not defined
+      notify: postgresql_reload
 
-- name: Create PostgreSQL local config
-  ansible.builtin.file:
-    path: "{{ _postgresql_conf_local }}"
-    state: touch
-    modification_time: preserve
-    owner: "{{ _postgresql_user }}"
-    group: "{{ _postgresql_group }}"
-    mode: 0644
-  changed_when: false
+    - name: Create PostgreSQL local config
+      ansible.builtin.file:
+        path: "{{ _postgresql_conf_local }}"
+        state: touch
+        modification_time: preserve
+        owner: "{{ _postgresql_user }}"
+        group: "{{ _postgresql_group }}"
+        mode: 0644
+      changed_when: false
 
-- name: List PostgreSQL alien config files
-  ansible.builtin.find:
-    path: "{{ _postgresql_conf_include }}"
-    exclude: "{{ _postgresql_conf_exclude }}"
-    recurse: false
-  register: _query_includes
+    - name: List PostgreSQL alien config files
+      ansible.builtin.find:
+        path: "{{ _postgresql_conf_include }}"
+        exclude: "{{ _postgresql_conf_exclude }}"
+        recurse: false
+      register: _query_includes
 
-- name: Drop PostgreSQL alien config files
-  ansible.builtin.file:
-    path: "{{ item }}"
-  loop: "{{ _query_includes.files | map(attribute='path') }}"
+    - name: Drop PostgreSQL alien config files
+      ansible.builtin.file:
+        path: "{{ item }}"
+      loop: "{{ _query_includes.files | map(attribute='path') }}"
 
-- name: Manage PostgreSQL main config
-  ansible.builtin.template:
-    src: postgresql.conf.j2
-    dest: "{{ _postgresql_conf_main }}"
-    owner: "{{ _postgresql_user }}"
-    group: "{{ _postgresql_group }}"
-    mode: 0644
-  notify: postgresql_restart
+    - name: Manage PostgreSQL main config
+      ansible.builtin.template:
+        src: postgresql.conf.j2
+        dest: "{{ _postgresql_conf_main }}"
+        owner: "{{ _postgresql_user }}"
+        group: "{{ _postgresql_group }}"
+        mode: 0644
+      notify: postgresql_restart
 
-- name: Manage PostgreSQL hba config
+- name: Manage PostgreSQL hba entries
   ansible.builtin.template:
     src: pg_hba.conf.j2
     dest: "{{ _postgresql_conf_hba }}"
@@ -139,9 +142,10 @@
     mode: 0644
   vars:
     _entries: "{{ postgresql_hba_entries }}"
-  notify: postgresql_restart
+  when: _postgresql_conf_hba_manage | bool
+  notify: postgresql_reload
 
-- name: Manage PostgreSQL ident config
+- name: Manage PostgreSQL ident entries
   ansible.builtin.template:
     src: pg_ident.conf.j2
     dest: "{{ _postgresql_conf_ident }}"
@@ -150,6 +154,7 @@
     mode: 0644
   vars:
     _entries: "{{ postgresql_ident_entries }}"
+  when: _postgresql_conf_ident_manage | bool
   notify: postgresql_reload
 
 - name: Manage PostgreSQL profile configuration

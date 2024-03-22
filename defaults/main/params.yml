@@ -15,6 +15,9 @@ postgresql_profile: '/etc/profile.d/postgresql.sh'
 postgresql_auth_method: md5  # [ scram-sha-256 | md5 ]
 postgresql_default_database: postgres
 postgresql_locale: en_US.UTF-8
+postgresql_conf_main_manage: true
+postgresql_conf_hba_manage: true
+postgresql_conf_ident_manage: true
 postgresql_ident_entries: []
 postgresql_hba_entries:
   - type: "host"
