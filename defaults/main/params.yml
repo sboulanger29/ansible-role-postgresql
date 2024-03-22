@@ -18,6 +18,8 @@ postgresql_locale: en_US.UTF-8
 postgresql_conf_main_manage: true
 postgresql_conf_hba_manage: true
 postgresql_conf_ident_manage: true
+postgresql_role_manage: "{{ postgresql_service_state == 'started' }}"
+postgresql_database_manage: "{{ postgresql_service_state == 'started' }}"
 postgresql_ident_entries: []
 postgresql_hba_entries:
   - type: "host"

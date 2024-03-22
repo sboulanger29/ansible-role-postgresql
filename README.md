@@ -27,6 +27,8 @@ Global PostgreSQL configuration
 | postgresql_conf_main_manage  |     true | list   | Toggle flag for postgresql.conf management | false    |
 | postgresql_conf_hba_manage   |     true | list   | Toggle flag for pg_hba.conf management     | false    |
 | postgresql_conf_ident_manage |     true | list   | Toggle flag for pg_ident.conf management   | false    |
+| postgresql_role_manage       |     true | list   | Toggle flag for role management            | false    |
+| postgresql_datrabase_manage  |     true | list   | Toggle flag for database management        | false    |
 
 Please refer to the [defaults directory](/defaults/main/) for an up to date list of input parameters.
 
