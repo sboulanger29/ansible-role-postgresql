@@ -74,17 +74,17 @@
         - pg_hba.conf
         - postgresql.conf
 
+- name: Create PostgreSQL include directory
+  ansible.builtin.file:
+    path: "{{ _postgresql_conf_include }}"
+    state: directory
+    owner: "{{ _postgresql_user }}"
+    group: "{{ _postgresql_group }}"
+    mode: 0755
+
 - name: Manage PostgreSQL configuration
   when: _postgresql_conf_main_manage | bool
   block:
-    - name: Create PostgreSQL include directory
-      ansible.builtin.file:
-        path: "{{ _postgresql_conf_include }}"
-        state: directory
-        owner: "{{ _postgresql_user }}"
-        group: "{{ _postgresql_group }}"
-        mode: 0755
-
     - name: Manage PostgreSQL ansible include config
       ansible.builtin.copy:
         dest: "{{ _postgresql_conf_ansible }}"
