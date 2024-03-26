@@ -5,6 +5,7 @@
 - name: Set global facts
   ansible.builtin.set_fact:
     _postgresql_package_name: "{{ postgresql_package_name | default(_default_package_name) }}"
+    _postgresql_package_extra: "{{ postgresql_package_extra | default(_default_package_extra) }}"
     _postgresql_service_name: "{{ postgresql_service_name | default(_default_service) }}"
     _postgresql_user: "{{ postgresql_user }}"
     _postgresql_group: "{{ postgresql_group }}"
@@ -30,6 +31,7 @@
     _postgresql_conf_exclude: "{{ __postgresql_conf_exclude }}"
   vars:
     _default_package_name: "{{ __postgresql_package_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
+    _default_package_extra: "{{ __postgresql_package_extra | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_service: "{{ __postgresql_service_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _conf_confdir: "{{ __postgresql_conf_dir }}"
     _conf_datadir: "{{ __postgresql_datadir | nephelaiio.plugins.sorted_get(_conf_search) }}"

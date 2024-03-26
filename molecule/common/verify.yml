@@ -88,7 +88,7 @@
       ansible.builtin.meta: end_play
       when: (postgresql_service | first).state != 'running'
 
-    - name: Gather postgresql info
+    - name: Gather PostgreSQL info
       community.postgresql.postgresql_info:
         filter:
           - "databases"
@@ -160,7 +160,7 @@
           - postgresql_query_nopasswd is failed
           - postgresql_query_nopasswd.stderr is search('no password supplied')
 
-    - name: Execute postgresql bin command from path
+    - name: Execute PostgreSQL bin command from path
       ansible.builtin.command:
         cmd: "{{ _postgresql_bindir }}/pg_ctl --help"
 
