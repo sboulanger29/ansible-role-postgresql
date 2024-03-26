@@ -11,24 +11,27 @@ The following is the list of end-user serviceable parameters:
 
 Global PostgreSQL configuration
 
-| Parameter                    |  Default | Type   | Description                                | Required |
-|:-----------------------------|---------:|:-------|:-------------------------------------------|:---------|
-| postgresql_release           |       16 | string | Target PostgreSQL major release            | false    |
-| postgresql_user              | postgres | string | OS user for postgres daemon                | false    |
-| postgresql_group             | postgres | string | OS group for postgres daemon               | false    |
-| postgresql_package_state     |  present | string | PostgreSQL package state                   | false    |
-| postgresql_service_state     |  started | string | PostgreSQL service state                   | false    |
-| postgresql_service_enabled   |     true | bool   | Start PostgreSQL on boot                   | false    |
-| postgresql_roles             |       [] | list   | List of PostgreSQL roles                   | false    |
-| postgresql_databases         |       [] | list   | List of PostgreSQL databases               | false    |
-| postgresql_hba_entries       |       [] | list   | List of HBA entries                        | false    |
-| postgresql_ident_entries     |       [] | list   | List of ident entries                      | false    |
-| postgresql_initdb            |     true | list   | Toggle flag for database initialization    | false    |
-| postgresql_conf_main_manage  |     true | list   | Toggle flag for postgresql.conf management | false    |
-| postgresql_conf_hba_manage   |     true | list   | Toggle flag for pg_hba.conf management     | false    |
-| postgresql_conf_ident_manage |     true | list   | Toggle flag for pg_ident.conf management   | false    |
-| postgresql_role_manage       |     true | list   | Toggle flag for role management            | false    |
-| postgresql_datrabase_manage  |     true | list   | Toggle flag for database management        | false    |
+| Parameter                    |         Default | Type   | Description                                | Required |
+|:-----------------------------|----------------:|:-------|:-------------------------------------------|:---------|
+| postgresql_release           |              16 | string | Target PostgreSQL major release            | false    |
+| postgresql_user              |        postgres | string | OS user for postgres daemon                | false    |
+| postgresql_group             |        postgres | string | OS group for postgres daemon               | false    |
+| postgresql_package_state     |         present | string | PostgreSQL package state                   | false    |
+| postgresql_service_state     |         started | string | PostgreSQL service state                   | false    |
+| postgresql_service_enabled   |            true | bool   | Start PostgreSQL on boot                   | false    |
+| postgresql_roles             |              [] | list   | List of PostgreSQL roles                   | false    |
+| postgresql_databases         |              [] | list   | List of PostgreSQL databases               | false    |
+| postgresql_hba_entries       |              [] | list   | List of HBA entries                        | false    |
+| postgresql_ident_entries     |              [] | list   | List of ident entries                      | false    |
+| postgresql_initdb            |            true | list   | Toggle flag for database initialization    | false    |
+| postgresql_conf_main_file    | postgresql.conf | string | Main config file basename                  | false    |
+| postgresql_conf_ident_file   |   pg_ident.conf | string | Ident config file basename                 | false    |
+| postgresql_conf_hba_file     |     pg_hba.conf | string | HBA config file basename                   | false    |
+| postgresql_conf_main_manage  |            true | list   | Toggle flag for postgresql.conf management | false    |
+| postgresql_conf_hba_manage   |            true | list   | Toggle flag for pg_hba.conf management     | false    |
+| postgresql_conf_ident_manage |            true | list   | Toggle flag for pg_ident.conf management   | false    |
+| postgresql_role_manage       |            true | list   | Toggle flag for role management            | false    |
+| postgresql_datrabase_manage  |            true | list   | Toggle flag for database management        | false    |
 
 Please refer to the [defaults directory](/defaults/main/) for an up to date list of input parameters.
 
