@@ -29,6 +29,7 @@
     _postgresql_conf_pgstat_statements: "{{ _conf_include }}/{{ __postgresql_conf_pgstat_statements }}"
     _postgresql_conf_local: "{{ _conf_include }}/{{ __postgresql_conf_local }}"
     _postgresql_conf_exclude: "{{ __postgresql_conf_exclude }}"
+    _postgresql_conf_search: "{{ _conf_search }}"
   vars:
     _default_package_name: "{{ __postgresql_package_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_package_extra: "{{ __postgresql_package_extra | nephelaiio.plugins.sorted_get(_conf_search) }}"

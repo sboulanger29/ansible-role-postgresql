@@ -1,26 +1,35 @@
 ---
+- name: Gather package facts
+  ansible.builtin.package_facts:
+
 - name: Configure apt package holds
   ansible.builtin.dpkg_selections:
-    name: "{{ item.split('=') | first }}"
+    name: "{{ _package_target }}"
     selection: "{{ _lock_state }}"
   vars:
     _version_regex: ".*=.*"
     _packages: "{{ ([_postgresql_package_name] | flatten) }}"
     _package_versions: "{{ _packages | map('regex_search', _version_regex) }}"
     _package_holds: "{{ _package_versions | select('string') }}"
+    _package_target: "{{ item.split('=') | first  }}"
   loop: "{{ _package_holds }}"
-  when: ansible_os_family == "Debian"
+  when:
+    - ansible_os_family == "Debian"
+    - _lock_state != 'install' or _package_target in ansible_facts.packages
   changed_when: false
 
 - name: Configure yum package locks
   community.general.yum_versionlock:
-    name: "{{ item.split('=') | first }}"
+    name: "{{ _package_target }}"
     state: "{{ 'absent' if _lock_state == 'install' else 'present' }}"
   vars:
     _version_regex: ".*=.*"
     _packages: "{{ ([_postgresql_package_name] | flatten) }}"
     _package_versions: "{{ _packages | map('regex_search', _version_regex) }}"
     _package_holds: "{{ _package_versions | select('string') }}"
+    _package_target: "{{ item.split('=') | first  }}"
   loop: "{{ _package_holds }}"
-  when: ansible_os_family == "RedHat"
+  when:
+    - ansible_os_family == "RedHat"
+    - _lock_state != 'install' or _package_target in ansible_facts.packages
   changed_when: false

@@ -1,0 +1,108 @@
+- name: Verify PostgreSQL deployment
+  hosts: all
+  become: true
+  tasks:
+    - name: Import role defaults
+      ansible.builtin.include_role:
+        name: nephelaiio.postgresql
+        tasks_from: vars.yml
+
+    - name: Query Debian package versions
+      ansible.builtin.shell:
+        cmd: "apt-cache madison {{ item }} | awk -F'|' '{ print $2 }'"
+      loop: "{{ _postgresql_package_name }}"
+      register: _debian_package_query
+      when: ansible_os_family == "Debian"
+      changed_when: false
+
+    - name: Query RedHat package versions
+      ansible.builtin.shell:
+        cmd: "yum list {{ item }} --showduplicates | grep '^{{ item }}' | awk '{ print $1,$2 }' | sort -r"
+      loop: "{{ _postgresql_package_name }}"
+      register: _redhat_package_query
+      when: ansible_os_family == "RedHat"
+      changed_when: false
+
+    - name: Set package version facts
+      ansible.builtin.set_fact:
+        _postgresql_package_query: "{{ _redhat_packages + _debian_packages }}"
+      vars:
+        _redhat_packages: "{{ [] if _redhat_package_query.skipped else _redhat_package_query.results }}"
+        _debian_packages: "{{ [] if _debian_package_query.skipped else _debian_package_query.results }}"
+
+    - name: Verify target package versions
+      ansible.builtin.fail:
+        msg: "{{ _package }} has no installation candidate: {{ item }}"
+      vars:
+        _stdout: "{{ item.stdout_lines }}"
+        _package: "{{ item.item }}"
+      loop_control:
+        label: "{{ item.item }}"
+      loop: "{{ _postgresql_package_query }}"
+      when: _stdout | length == 0
+
+    - name: Initialize package versions
+      ansible.builtin.set_fact:
+        postgresql_package_list: []
+
+    - name: Set target Debian package versions
+      ansible.builtin.set_fact:
+        postgresql_package_list: "{{ postgresql_package_list + [_package] }}"
+      vars:
+        _stdout: "{{ item.stdout_lines }}"
+        _multiple: "{{ _stdout | length > 1 }}"
+        _version: "{{ _stdout[0] if not _multiple else _stdout[1] }}"
+        _package: "{{ item.item }}={{ _version | trim }}"
+      loop_control:
+        label: "{{ item.item }}"
+      loop: "{{ _postgresql_package_query }}"
+      when: ansible_os_family == "Debian"
+
+    - name: Set target RedHat package versions
+      ansible.builtin.set_fact:
+        postgresql_package_list: "{{ postgresql_package_list + [_package] }}"
+      vars:
+        _stdout: "{{ item.stdout_lines }}"
+        _multiple: "{{ _stdout | length > 1 }}"
+        _target: "{{ (_stdout[0] if not _multiple else _stdout[1]).split(' ') }}"
+        _arch: "{{ _target[0].split('.')[1] }}"
+        _name: "{{ _target[0].split('.')[0] }}"
+        _version: "{{ _target[1] }}"
+        _package: "{{ _name }}-{{ _version }}.{{ _arch }}"
+      loop_control:
+        label: "{{ item.item }}"
+      loop: "{{ _postgresql_package_query }}"
+      when: ansible_os_family == "RedHat"
+
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+
+    - name: Verify package versions
+      ansible.builtin.assert:
+        that:
+          - _package in packages
+          - _version == _installed
+        fail_msg: "Expected {{ _package }}={{ _version }}, found {{ _package }}={{ _installed }}"
+        success_msg: "Found {{ _package }}={{ _version }}"
+      vars:
+        _package: "{{ item.split('=') | first }}"
+        _version: "{{ item.split('=') | last }}"
+        _installed: "{{ (packages[_package] | default([{'version': 'None'}]))[0].version }}"
+      loop: "{{ postgresql_package_list }}"
+      when: ansible_os_family == "Debian"
+
+    - name: Verify package versions
+      ansible.builtin.assert:
+        that:
+          - _package in packages
+          - _version == _installed
+        fail_msg: "Expected {{ _package }}={{ _version }}, found {{ _package }}={{ _installed }}"
+        success_msg: "Found {{ _package }}={{ _version }}"
+      vars:
+        _prefix: "^{{ _package }}-"
+        _suffix: "-.*$"
+        _package: "{{ item.0 }}"
+        _version: "{{ item.1 | regex_replace(_prefix, '') | regex_replace(_suffix, '') }}"
+        _installed: "{{ (packages[_package] | default([{'version': 'None'}]))[0].version }}"
+      loop: "{{ _postgresql_package_name | zip(postgresql_package_list) }}"
+      when: ansible_os_family == "RedHat"

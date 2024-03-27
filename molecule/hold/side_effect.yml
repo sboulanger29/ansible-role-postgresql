@@ -1,0 +1,7 @@
+---
+- name: Update OS
+  hosts: mongos
+  become: true
+  serial: 1
+  roles:
+    - robertdebock.update
