@@ -33,6 +33,8 @@ provisioner:
         vars:
           postgresql_nolog: false
           postgresql_conf_max_conns: 600
+          postgresql_conf_socketdir_manage: false
+          postgresql_conf_ident_manage: false
           postgresql_conf_ansible: |
             max_connections = {{ postgresql_conf_max_conns }}
 verifier:

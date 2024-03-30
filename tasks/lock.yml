@@ -11,7 +11,7 @@
     _packages: "{{ ([_postgresql_package_name] | flatten) }}"
     _package_versions: "{{ _packages | map('regex_search', _version_regex) }}"
     _package_holds: "{{ _package_versions | select('string') }}"
-    _package_target: "{{ item.split('=') | first  }}"
+    _package_target: "{{ item.split('=') | first }}"
   loop: "{{ _package_holds }}"
   when:
     - ansible_os_family == "Debian"
@@ -27,7 +27,7 @@
     _packages: "{{ ([_postgresql_package_name] | flatten) }}"
     _package_versions: "{{ _packages | map('regex_search', _version_regex) }}"
     _package_holds: "{{ _package_versions | select('string') }}"
-    _package_target: "{{ item.split('=') | first  }}"
+    _package_target: "{{ item.split('=') | first }}"
   loop: "{{ _package_holds }}"
   when:
     - ansible_os_family == "RedHat"
