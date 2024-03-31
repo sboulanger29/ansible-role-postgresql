@@ -38,13 +38,25 @@
 
 - name: Install packages and configure package holds
   block:
-    - name: Install PostgreSQL server packages
+    - name: Install PostgreSQL deb server packages
       ansible.builtin.package:
-        name: "{{ _server + _extra }}"
+        name: "{{ _packages }}"
         state: "{{ postgresql_package_state }}"
       vars:
         _server: "{{ [_postgresql_package_name] | flatten }}"
         _extra: "{{ [_postgresql_package_extra] | flatten }}"
+        _packages: "{{ _server + _extra }}"
+      when: ansible_os_family == 'Debian'
+
+    - name: Install PostgreSQL yum server packages
+      ansible.builtin.package:
+        name: "{{ _packages | regex_replace('=', '-') }}"
+        state: "{{ postgresql_package_state }}"
+      vars:
+        _server: "{{ [_postgresql_package_name] | flatten }}"
+        _extra: "{{ [_postgresql_package_extra] | flatten }}"
+        _packages: "{{ _server + _extra }}"
+      when: ansible_os_family == 'RedHat'
 
   always:
     - name: Configure package holds

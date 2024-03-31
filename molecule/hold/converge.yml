@@ -70,7 +70,7 @@
         _arch: "{{ _target[0].split('.')[1] }}"
         _name: "{{ _target[0].split('.')[0] }}"
         _version: "{{ _target[1] }}"
-        _package: "{{ _name }}-{{ _version }}.{{ _arch }}"
+        _package: "{{ _name }}={{ _version }}.{{ _arch }}"
       loop_control:
         label: "{{ item.item }}"
       loop: "{{ _postgresql_package_query }}"

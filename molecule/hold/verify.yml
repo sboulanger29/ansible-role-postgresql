@@ -106,3 +106,17 @@
         _installed: "{{ (packages[_package] | default([{'version': 'None'}]))[0].version }}"
       loop: "{{ _postgresql_package_name | zip(postgresql_package_list) }}"
       when: ansible_os_family == "RedHat"
+
+    - name: Verify apt package locks
+      ansible.builtin.command:
+        cmd: "apt-mark showhold | grep {{ item }}"
+      loop: "{{ _postgresql_package_name }}"
+      when: ansible_os_family == "Debian"
+      changed_when: false
+
+    - name: Verify yum package locks
+      ansible.builtin.command:
+        cmd: "grep {{ item }} /etc/yum/pluginconf.d/versionlock.list"
+      loop: "{{ _postgresql_package_name }}"
+      when: ansible_os_family == "RedHat"
+      changed_when: false

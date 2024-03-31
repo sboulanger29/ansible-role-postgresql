@@ -7,6 +7,7 @@ __postgresql_os_search:
   - "default"
 __postgresql_package_extra:
   redhat:
+    - "python3-dnf-plugin-versionlock"
     - "pgaudit_{{ postgresql_release }}"
     - "pg_cron_{{ postgresql_release }}"
     - "glibc-langpack-{{ postgresql_locale | regex_replace('_.*', '') }}"
