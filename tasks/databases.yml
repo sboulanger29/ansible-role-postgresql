@@ -23,12 +23,11 @@
     db: "{{ _database.db_connect | default(postgresql_default_database) }}"
     role: "{{ _role.name }}"
     privs: "{{ _role.privs | default(omit) }}"
-    objs: "{{ _role.objs | default(omit) }}"
+    objs: "{{ _database.name }}"
     schema: "{{ _role.schema | default(omit) }}"
-    type: "{{ _role.type | default(omit) }}"
+    type: database
     grant_option: "{{ _role.grant_option | default(omit) }}"
     session_role: "{{ _database.session_role | default(omit) }}"
-    ssl_mode: "{{ _database.ssl_mode | default(omit) }}"
     state: "{{ _role.state | default('present') }}"
   vars:
     ansible_ssh_pipelining: true

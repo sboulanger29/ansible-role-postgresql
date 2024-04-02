@@ -52,12 +52,8 @@ provisioner:
               roles:
                 - name: admins
                   privs: ALL
-                  type: database
-                  objs: database
                 - name: read_only
                   privs: ALL
-                  type: database
-                  objs: database
 verifier:
   name: ansible
 scenario:
