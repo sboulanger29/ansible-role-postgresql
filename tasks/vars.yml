@@ -4,8 +4,9 @@
 
 - name: Set global facts
   ansible.builtin.set_fact:
-    _postgresql_package_server: "{{ postgresql_package_server | default(_default_package_server) }}"
-    _postgresql_package_client: "{{ postgresql_package_client | default(_default_package_server) }}"
+    _postgresql_package_all: "{{ _package_server + _package_client}}"
+    _postgresql_package_server: "{{ _package_server }}"
+    _postgresql_package_client: "{{ _package_client }}"
     _postgresql_package_extra: "{{ postgresql_package_extra | default(_default_package_extra) }}"
     _postgresql_service_name: "{{ postgresql_service_name | default(_default_service) }}"
     _postgresql_user: "{{ postgresql_user }}"
@@ -37,6 +38,8 @@
     _default_package_client: "{{ __postgresql_package_client | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_package_extra: "{{ __postgresql_package_extra | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_service: "{{ __postgresql_service_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
+    _package_server: "{{ postgresql_package_server | default(_default_package_server) }}"
+    _package_client: "{{ postgresql_package_client | default(_default_package_server) }}"
     _conf_confdir: "{{ __postgresql_conf_dir }}"
     _conf_datadir: "{{ __postgresql_datadir | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _conf_bindir: "{{ __postgresql_bindir | nephelaiio.plugins.sorted_get(_conf_search) }}"
