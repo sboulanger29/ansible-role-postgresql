@@ -14,13 +14,16 @@ __postgresql_package_extra:
   debian:
     - "postgresql-{{ postgresql_release }}-pgaudit"
     - "postgresql-{{ postgresql_release }}-cron"
-__postgresql_package_name:
+__postgresql_package_server:
   redhat:
     - "postgresql{{ postgresql_release }}-server"
     - "postgresql{{ postgresql_release }}-contrib"
-    - "postgresql{{ postgresql_release }}"
   debian:
     - "postgresql-{{ postgresql_release }}"
+__postgresql_package_client:
+  redhat:
+    - "postgresql{{ postgresql_release }}"
+  debian:
     - "postgresql-client-{{ postgresql_release }}"
 
 __postgresql_bindir:

@@ -8,7 +8,7 @@
     selection: "{{ _lock_state }}"
   vars:
     _version_regex: ".*=.*"
-    _packages: "{{ ([_postgresql_package_name] | flatten) }}"
+    _packages: "{{ ([_postgresql_package_server + _postgresql_package_client] | flatten) }}"
     _package_versions: "{{ _packages | map('regex_search', _version_regex) }}"
     _package_holds: "{{ _package_versions | select('string') }}"
     _package_target: "{{ item.split('=') | first }}"
@@ -24,7 +24,7 @@
     state: "{{ 'absent' if _lock_state == 'install' else 'present' }}"
   vars:
     _version_regex: ".*=.*"
-    _packages: "{{ ([_postgresql_package_name] | flatten) }}"
+    _packages: "{{ ([_postgresql_package_server + _postgresql_package_client] | flatten) }}"
     _package_versions: "{{ _packages | map('regex_search', _version_regex) }}"
     _package_holds: "{{ _package_versions | select('string') }}"
     _package_target: "{{ item.split('=') | first }}"
