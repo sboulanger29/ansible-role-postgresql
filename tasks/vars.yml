@@ -39,7 +39,7 @@
     _default_package_extra: "{{ __postgresql_package_extra | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_service: "{{ __postgresql_service_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _package_server: "{{ postgresql_package_server | default(_default_package_server) }}"
-    _package_client: "{{ postgresql_package_client | default(_default_package_server) }}"
+    _package_client: "{{ postgresql_package_client | default(_default_package_client) }}"
     _conf_confdir: "{{ __postgresql_conf_dir }}"
     _conf_datadir: "{{ __postgresql_datadir | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _conf_bindir: "{{ __postgresql_bindir | nephelaiio.plugins.sorted_get(_conf_search) }}"
