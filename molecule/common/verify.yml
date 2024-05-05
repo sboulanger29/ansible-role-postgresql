@@ -50,6 +50,7 @@
     - name: Set yum service facts
       ansible.builtin.set_fact:
         postgresql_service_release: "{{ _release }}"
+        postgresql_service_name: "{{ _name }}"
         postgresql_service: "{{ _service }}"
       vars:
         _packages: "{{ postgresql_server_packages }}"
@@ -61,6 +62,7 @@
     - name: Set yum service facts
       ansible.builtin.set_fact:
         postgresql_service_release: "{{ _release }}"
+        postgresql_service_name: "{{ _name }}"
         postgresql_service: "{{ _service }}"
       vars:
         _release: "{{ postgresql_server_packages | first | regex_replace('^postgresql-', '') }}"
@@ -83,6 +85,21 @@
         _svc_status: "{{ _masked | ternary('masked', _status) }}"
         _stopped: "{{ (ansible_os_family == 'RedHat') | ternary('inactive', 'stopped') }}"
         _svc_state: "{{ (_state == 'running') | ternary('running', _stopped) }}"
+
+    - name: Verify service mask
+      when: postgresql_service_masked | default('false') | bool
+      block:
+        - name: Attempt mask service start
+          ansible.builtin.shell: >-
+            systemctl start {{ postgresql_service_name }}
+          register: _masked_start
+          ignore_errors: true
+
+        - name: Verify service mask
+          ansible.builtin.assert:
+            that:
+              - _masked_start is failed
+              - _masked_start.stderr | regex_search('.* ' + postgresql_service_name + ' is masked.')
 
     - name: Stop verification for install-only scenarios
       ansible.builtin.meta: end_play

@@ -4,7 +4,7 @@
 
 - name: Set global facts
   ansible.builtin.set_fact:
-    _postgresql_package_all: "{{ _package_server + _package_client}}"
+    _postgresql_package_all: "{{ _package_server + _package_client }}"
     _postgresql_package_server: "{{ _package_server }}"
     _postgresql_package_client: "{{ _package_client }}"
     _postgresql_package_extra: "{{ postgresql_package_extra | default(_default_package_extra) }}"

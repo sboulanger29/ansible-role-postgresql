@@ -2,9 +2,23 @@
 - name: Set installation facts
   ansible.builtin.include_tasks: vars.yml
 
+- name: Unmask PostgreSQL service
+  ansible.builtin.command:
+    cmd: "systemctl unmask {{ _postgresql_service_name }}"
+  when: not (postgresql_service_masked | bool)
+  changed_when: false
+  tags: skip_ansible_lint
+
 - name: Manage PostgreSQL service
   ansible.builtin.systemd_service:
     name: "{{ _postgresql_service_name }}"
     state: "{{ postgresql_service_state }}"
     enabled: "{{ postgresql_service_enabled }}"
     masked: "{{ postgresql_service_masked }}"
+
+- name: Mask PostgreSQL service
+  ansible.builtin.command:
+    cmd: "systemctl mask {{ _postgresql_service_name }}"
+  when: postgresql_service_masked | bool
+  changed_when: false
+  tags: skip_ansible_lint

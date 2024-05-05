@@ -1,3 +1,4 @@
+---
 - name: Verify PostgreSQL deployment
   hosts: all
   become: true
