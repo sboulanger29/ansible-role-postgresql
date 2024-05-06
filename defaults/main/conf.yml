@@ -1,13 +1,7 @@
 ---
 __postgresql_conf_dir: "/etc/postgresql/{{ postgresql_release }}/main"
-__postgresql_conf_pgaudit: 10-pgaudit.conf
-__postgresql_conf_pgcron: 20-pgcron.conf
-__postgresql_conf_pgstat_statements: 30-pgstat_statements.conf
 __postgresql_conf_local: 70-local.conf
 __postgresql_conf_ansible: 90-ansible.conf
 __postgresql_conf_exclude:
-  - "{{ __postgresql_conf_pgaudit }}"
-  - "{{ __postgresql_conf_pgcron }}"
-  - "{{ __postgresql_conf_pgstat_statements }}"
   - "{{ __postgresql_conf_local }}"
   - "{{ __postgresql_conf_ansible }}"

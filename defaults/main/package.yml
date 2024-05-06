@@ -8,12 +8,8 @@ __postgresql_os_search:
 __postgresql_package_extra:
   redhat:
     - "python3-dnf-plugin-versionlock"
-    - "pgaudit_{{ postgresql_release }}"
-    - "pg_cron_{{ postgresql_release }}"
     - "glibc-langpack-{{ postgresql_locale | regex_replace('_.*', '') }}"
-  debian:
-    - "postgresql-{{ postgresql_release }}-pgaudit"
-    - "postgresql-{{ postgresql_release }}-cron"
+  debian: []
 __postgresql_package_server:
   redhat:
     - "postgresql{{ postgresql_release }}-server"
