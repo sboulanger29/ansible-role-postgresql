@@ -4,7 +4,7 @@ MOLECULE_SCENARIO ?= deploy
 MOLECULE_DOCKER_IMAGE ?= ubuntu2204
 MOLECULE_DOCKER_COMMAND ?= /lib/systemd/systemd
 GALAXY_API_KEY ?=
-GITHUB_REPOSITORY ?= $$(git config --get remote.origin.url | cut -d: -f 2 | cut -d. -f 1)
+GITHUB_REPOSITORY ?= $$(git config --get remote.origin.url | cut -d':' -f 2 | cut -d. -f 1)
 GITHUB_ORG = $$(echo ${GITHUB_REPOSITORY} | cut -d/ -f 1)
 GITHUB_REPO = $$(echo ${GITHUB_REPOSITORY} | cut -d/ -f 2)
 REQUIREMENTS = requirements.yml
@@ -17,7 +17,6 @@ test: lint
 	poetry run molecule test -s ${MOLECULE_SCENARIO}
 
 install:
-	@type poetry >/dev/null || pip3 install poetry
 	@poetry install --no-root
 
 lint: install
@@ -47,7 +46,7 @@ ignore:
 clean: destroy reset
 	poetry env remove $$(which python)
 
-publish:
+publish: install
 	@echo publishing repository ${GITHUB_REPOSITORY}
 	@echo GITHUB_ORGANIZATION=${GITHUB_ORG}
 	@echo GITHUB_REPOSITORY=${GITHUB_REPO}
@@ -58,4 +57,4 @@ version:
 	@poetry run molecule --version
 
 debug: version
-	@poetry export --dev --without-hashes
+	@poetry export --dev --without-hashes || exit 0

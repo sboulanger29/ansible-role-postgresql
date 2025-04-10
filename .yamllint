@@ -1,6 +1,12 @@
 ---
 extends: default
 
+ignore:
+  - '.venv/'
+  - '.devbox/'
+  - 'roles/'
+  - '*.j2.yml'
+
 rules:
   braces:
     max-spaces-inside: 1
