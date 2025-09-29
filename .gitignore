@@ -4,7 +4,9 @@
 .devbox/
 .venv/
 __pycache__/
+.ansible/
 
 # file globs
 *.swp
 **/.ropeproject
+.DS_Store

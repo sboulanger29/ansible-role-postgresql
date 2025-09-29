@@ -1,9 +1,6 @@
 ---
 name: release
 
-env:
-  DEVBOX_VERSION: ${{ vars.DEVBOX_VERSION }}
-
 on:
   push:
     tags:
@@ -24,9 +21,10 @@ jobs:
           path: "nephelaiio.postgresql"
 
       - name: Install devbox
-        uses: jetify-com/devbox-install-action@v0.12.0
+        uses: jetify-com/devbox-install-action@v0.14.0
         with:
-          project-path: "nephelaiio.k8s"
+          project-path: "nephelaiio.postgresql"
+          enable-cache: true
 
       - name: Trigger a new import on galaxy
         run: devbox run -- make publish

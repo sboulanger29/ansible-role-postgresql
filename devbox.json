@@ -1,12 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.0/.schema/devbox.schema.json",
-  "packages": [
-    "python@3.11.11",
-    "poetry@latest",
-    "poetryPlugins.poetry-plugin-export@latest",
-    "gnumake@latest",
-    "yq@latest"
-  ],
+  "packages": ["python@latest", "gnumake@latest", "yq-go@latest", "uv@latest"],
   "shell": {
     "init_hook": [],
     "scripts": {}

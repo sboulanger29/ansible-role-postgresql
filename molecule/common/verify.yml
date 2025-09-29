@@ -36,6 +36,15 @@
               - postgresql_client_packages | length == 1
 
       rescue:
+        - name: Verify service mask
+          ansible.builtin.assert:
+            that:
+              - _masked_start is failed
+              - _masked_start.stderr | regex_search(_query) | length > 0
+          vars:
+            _service: "{{ postgresql_service_name }}"
+            _query: ".* {{ _service }} is masked."
+
         - name: Debug server package list
           ansible.builtin.debug:
             var: postgresql_server_packages
@@ -93,13 +102,16 @@
           ansible.builtin.shell: >-
             systemctl start {{ postgresql_service_name }}
           register: _masked_start
-          ignore_errors: true
 
+      rescue:
         - name: Verify service mask
           ansible.builtin.assert:
             that:
               - _masked_start is failed
-              - _masked_start.stderr | regex_search('.* ' + postgresql_service_name + ' is masked.')
+              - _masked_start.stderr | regex_search(_query) | length > 0
+          vars:
+            _service: "{{ postgresql_service_name }}"
+            _query: ".* {{ _service }} is masked."
 
     - name: Stop verification for install-only scenarios
       ansible.builtin.meta: end_play
@@ -154,7 +166,7 @@
     - name: Query data checksum
       community.postgresql.postgresql_query:
         db: postgres
-        query: 'SHOW data_checksums'
+        query: "SHOW data_checksums"
       become: true
       become_user: "{{ _postgresql_user }}"
       register: postgresql_checksums
@@ -163,19 +175,21 @@
       ansible.builtin.assert:
         that: postgresql_checksums.query_result[0].data_checksums == "on"
 
-    - name: Attempt remote admin access
-      ansible.builtin.command:
-        cmd: "psql -h {{ ansible_default_ipv4.address }} -p 5432 -U postgres -c 'SHOW data_checksums'"
-      become: true
-      become_user: molecule
-      register: postgresql_query_nopasswd
-      ignore_errors: true
+    - name: Verify remote admin access
+      block:
+        - name: Attempt remote admin access
+          ansible.builtin.command:
+            cmd: "psql -h {{ ansible_default_ipv4.address }} -p 5432 -U postgres -c 'SHOW data_checksums'"
+          become: true
+          become_user: molecule
+          register: postgresql_query_nopasswd
 
-    - name: Check unauthenticated access
-      ansible.builtin.assert:
-        that:
-          - postgresql_query_nopasswd is failed
-          - postgresql_query_nopasswd.stderr is search('no password supplied')
+      rescue:
+        - name: Check unauthenticated access
+          ansible.builtin.assert:
+            that:
+              - postgresql_query_nopasswd is failed
+              - postgresql_query_nopasswd.stderr is search('no password supplied')
 
     - name: Execute PostgreSQL bin command from path
       ansible.builtin.command:
