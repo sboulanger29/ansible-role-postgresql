@@ -30,11 +30,14 @@
     _postgresql_conf_local: "{{ _conf_include }}/{{ __postgresql_conf_local }}"
     _postgresql_conf_exclude: "{{ __postgresql_conf_exclude }}"
     _postgresql_conf_search: "{{ _conf_search }}"
+    _postgresql_databases: "{{ _databases }}"
   vars:
     _default_package_server: "{{ __postgresql_package_server | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_package_client: "{{ __postgresql_package_client | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_package_extra: "{{ __postgresql_package_extra | nephelaiio.plugins.sorted_get(_conf_search) }}"
     _default_service: "{{ __postgresql_service_name | nephelaiio.plugins.sorted_get(_conf_search) }}"
+    _default_database:
+      state: present
     _package_server: "{{ postgresql_package_server | default(_default_package_server) }}"
     _package_client: "{{ postgresql_package_client | default(_default_package_client) }}"
     _conf_confdir: "{{ __postgresql_conf_dir }}"
@@ -44,5 +47,6 @@
     _conf_search: "{{ __postgresql_os_search }}"
     _conf_include: "{{ _conf_confdir }}/conf.d"
     _auth_scram_sha256: "scram-sha-256"
-    _auth_scram_option: '-c password_encryption={{ _auth_scram_sha256 }}'
+    _auth_scram_option: "-c password_encryption={{ _auth_scram_sha256 }}"
     _auth_method: "{{ postgresql_auth_method }}"
+    _databases: "{{ [_default_database] | product(postgresql_databases) | map('combine') }}"

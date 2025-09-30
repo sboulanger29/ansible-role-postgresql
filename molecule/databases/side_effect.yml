@@ -1,0 +1,100 @@
+---
+- name: Get databases
+  hosts: all
+  become: true
+  tasks:
+    - name: Import role defaults
+      ansible.builtin.include_role:
+        name: nephelaiio.postgresql
+        tasks_from: vars.yml
+
+    - name: Query databases
+      community.postgresql.postgresql_info:
+        filter:
+          - "databases"
+      become: true
+      become_user: "{{ _postgresql_user }}"
+      register: postgresql_databases_query
+
+    - name: Set postgresql database facts
+      ansible.builtin.set_fact:
+        _existing_databases: "{{ _existing }}"
+        _target_databases: "{{ _present }}"
+      vars:
+        _databases: "{{ _postgresql_databases }}"
+        _present: "{{ _databases | selectattr('state', 'equalto', 'present') }}"
+        _existing: "{{ postgresql_databases_query.databases | default({}) | dict2items }}"
+        _existing_names: "{{ _existing | map(attribute='key') }}"
+        _absent: "{{ _databases | selectattr('name', 'in', _existing_names) | difference(_present) }}"
+
+    - name: Debug target databases
+      ansible.builtin.debug:
+        msg: "{{ _target_databases }}"
+
+    - name: Debug existing databases
+      ansible.builtin.debug:
+        msg: "{{ _existing_databases | map(attribute='key') }}"
+
+    - name: Verify postgresql databases
+      ansible.builtin.assert:
+        that: (_databases | length) == (_target_databases | length)
+      vars:
+        _databases: "{{ _existing_databases | selectattr('key', 'in', _target_database_names) }}"
+        _target_databases_present: "{{ _target_databases | selectattr('state', 'equalto', 'present') }}"
+        _target_database_names: "{{ _target_databases_present | map(attribute='name') }}"
+
+    - name: Overwrite database fact
+      ansible.builtin.set_fact:
+        postgresql_databases:
+          - name: database
+            encoding: "UNICODE"
+            roles:
+              - name: admins
+                privs: ALL
+              - name: read_only
+                privs: ALL
+          - name: test
+            state: absent
+            encoding: "UNICODE"
+            roles:
+              - name: admins
+                privs: ALL
+
+    - name: Import role
+      ansible.builtin.include_role:
+        name: nephelaiio.postgresql
+
+    - name: Query databases
+      community.postgresql.postgresql_info:
+        filter:
+          - "databases"
+      become: true
+      become_user: "{{ _postgresql_user }}"
+      register: postgresql_databases_query
+
+    - name: Set postgresql database facts
+      ansible.builtin.set_fact:
+        _existing_databases: "{{ _existing }}"
+        _target_databases: "{{ _present }}"
+      vars:
+        _databases: "{{ _postgresql_databases }}"
+        _present: "{{ _databases | selectattr('state', 'equalto', 'present') }}"
+        _existing: "{{ postgresql_databases_query.databases | default({}) | dict2items }}"
+        _existing_names: "{{ _existing | map(attribute='key') }}"
+        _absent: "{{ _databases | selectattr('name', 'in', _existing_names) | difference(_present) }}"
+
+    - name: Debug target databases
+      ansible.builtin.debug:
+        msg: "{{ _target_databases }}"
+
+    - name: Debug existing databases
+      ansible.builtin.debug:
+        msg: "{{ _existing_databases | map(attribute='key') }}"
+
+    - name: Verify postgresql databases
+      ansible.builtin.assert:
+        that: (_databases | length) == (_target_databases | length)
+      vars:
+        _databases: "{{ _existing_databases | selectattr('key', 'in', _target_database_names) }}"
+        _target_databases_present: "{{ _target_databases | selectattr('state', 'equalto', 'present') }}"
+        _target_database_names: "{{ _target_databases_present | map(attribute='name') }}"
