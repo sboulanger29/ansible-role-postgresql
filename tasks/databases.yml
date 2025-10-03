@@ -96,7 +96,7 @@
   environment:
     PGOPTIONS: "{{ _postgresql_pgoptions }}"
 
-- name: Delete PostgreSQL databases
+- name: Drop PostgreSQL databases
   community.postgresql.postgresql_db:
     name: "{{ item.name }}"
     lc_collate: "{{ item.lc_collate | default('en_US.UTF-8') }}"

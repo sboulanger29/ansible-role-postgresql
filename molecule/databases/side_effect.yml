@@ -14,7 +14,7 @@
           - "databases"
       become: true
       become_user: "{{ _postgresql_user }}"
-      register: postgresql_databases_query
+      register: postgresql_query_result
 
     - name: Set postgresql database facts
       ansible.builtin.set_fact:
@@ -23,7 +23,7 @@
       vars:
         _databases: "{{ _postgresql_databases }}"
         _present: "{{ _databases | selectattr('state', 'equalto', 'present') }}"
-        _existing: "{{ postgresql_databases_query.databases | default({}) | dict2items }}"
+        _existing: "{{ postgresql_query_result.databases | default({}) | dict2items }}"
         _existing_names: "{{ _existing | map(attribute='key') }}"
         _absent: "{{ _databases | selectattr('name', 'in', _existing_names) | difference(_present) }}"
 
@@ -59,6 +59,20 @@
             roles:
               - name: admins
                 privs: ALL
+        postgresql_roles:
+          - name: admin
+            password: admin
+            groups:
+              - name: admins
+          - name: user
+            password: user
+            groups:
+              - name: read_only
+            state: absent
+          - name: admins
+            role_attr_flags: "NOLOGIN"
+          - name: read_only
+            role_attr_flags: "NOLOGIN"
 
     - name: Import role
       ansible.builtin.include_role:
@@ -68,20 +82,25 @@
       community.postgresql.postgresql_info:
         filter:
           - "databases"
+          - "roles"
       become: true
       become_user: "{{ _postgresql_user }}"
-      register: postgresql_databases_query
+      register: postgresql_query_result
 
     - name: Set postgresql database facts
       ansible.builtin.set_fact:
-        _existing_databases: "{{ _existing }}"
-        _target_databases: "{{ _present }}"
+        _existing_databases: "{{ _databases_existing }}"
+        _target_databases: "{{ _databases_present }}"
+        _existing_roles: "{{ _roles_existing }}"
+        _target_roles: "{{ _roles_present }}"
       vars:
         _databases: "{{ _postgresql_databases }}"
-        _present: "{{ _databases | selectattr('state', 'equalto', 'present') }}"
-        _existing: "{{ postgresql_databases_query.databases | default({}) | dict2items }}"
-        _existing_names: "{{ _existing | map(attribute='key') }}"
-        _absent: "{{ _databases | selectattr('name', 'in', _existing_names) | difference(_present) }}"
+        _roles: "{{ _postgresql_roles }}"
+        _databases_present: "{{ _databases | selectattr('state', 'equalto', 'present') }}"
+        _databases_existing: "{{ postgresql_query_result.databases | default({}) | dict2items }}"
+        _existing_names: "{{ _databases_existing | map(attribute='key') }}"
+        _roles_present: "{{ _roles | selectattr('state', 'equalto', 'present') }}"
+        _roles_existing: "{{ postgresql_query_result.roles | default({}) | dict2items }}"
 
     - name: Debug target databases
       ansible.builtin.debug:
@@ -91,10 +110,23 @@
       ansible.builtin.debug:
         msg: "{{ _existing_databases | map(attribute='key') }}"
 
+    - name: Debug target roles
+      ansible.builtin.debug:
+        msg: "{{ _target_roles }}"
+
+    - name: Debug existing roles
+      ansible.builtin.debug:
+        msg: "{{ _existing_roles | map(attribute='key') }}"
+
     - name: Verify postgresql databases
       ansible.builtin.assert:
-        that: (_databases | length) == (_target_databases | length)
+        that:
+          - (_databases | length) == (_target_databases | length)
+          - (_roles | length) == (_target_roles | length)
       vars:
         _databases: "{{ _existing_databases | selectattr('key', 'in', _target_database_names) }}"
         _target_databases_present: "{{ _target_databases | selectattr('state', 'equalto', 'present') }}"
         _target_database_names: "{{ _target_databases_present | map(attribute='name') }}"
+        _roles: "{{ _existing_roles | selectattr('key', 'in', _target_role_names) }}"
+        _target_roles_present: "{{ _target_roles | selectattr('state', 'equalto', 'present') }}"
+        _target_role_names: "{{ _target_roles_present | map(attribute='name') }}"

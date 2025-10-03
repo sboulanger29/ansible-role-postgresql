@@ -1,4 +1,62 @@
 ---
+- name: Query existing roles
+  community.postgresql.postgresql_info:
+    filter:
+      - "roles"
+  become: true
+  become_user: "{{ _postgresql_user }}"
+  register: postgresql_roles_query
+
+- name: Set postgresql role facts
+  ansible.builtin.set_fact:
+    _postgresql_roles_existing: "{{ _existing_attributes }}"
+    _postgresql_roles_absent: "{{ _absent }}"
+    _postgresql_roles_present: "{{ _present }}"
+  vars:
+    _roles_ignore: "{{ postgresql_roles_ignore }}"
+    _attributes:
+      - key
+      - value
+    _drop_attributes: "nephelaiio.plugins.drop_attributes"
+    _to_dict: "nephelaiio.plugins.to_dict"
+    _roles: "{{ _postgresql_roles | rejectattr('name', 'in', _roles_ignore) }}"
+    _existing: "{{ postgresql_roles_query.roles | default({}) | dict2items | sort(attribute='key') }}"
+    _existing_keys: "{{ _existing | map(attribute='key') }}"
+    _existing_names_dict: "{{ _existing_keys | map(_to_dict, 'name') }}"
+    _existing_names_list: "{{ _existing | zip(_existing_names_dict) | map('combine') }}"
+    _existing_values: "{{ _existing_names_list | map(attribute='value') }}"
+    _existing_list: "{{ _existing_names_list | zip(_existing_values) | map('combine') }}"
+    _existing_attributes: "{{ _existing_list | map(_drop_attributes, _attributes) }}"
+    _present: "{{ _roles | selectattr('state', 'equalto', 'present') }}"
+    _absent: "{{ _roles | selectattr('name', 'in', _existing_keys) | difference(_present) }}"
+
+- name: Debug existing PostgreSQL roles
+  ansible.builtin.debug:
+    msg: "{{ _postgresql_roles_existing }}"
+
+- name: Debug target PostgreSQL roles
+  ansible.builtin.debug:
+    msg: "{{ _postgresql_roles_present }}"
+
+- name: Debug existing PostgreSQL roles to be dropped
+  ansible.builtin.debug:
+    msg: "{{ _postgresql_roles_absent }}"
+
+- name: Debug PostgreSQL roles ignore
+  ansible.builtin.debug:
+    msg: "{{ postgresql_roles_ignore }}"
+
+- name: Verify PostgreSQL roles to be dropped
+  ansible.builtin.assert:
+    that: _absent_query | length == 0
+    fail_msg: "PostgreSQL roles cannot be dropped because they are being used as target_roles: [{{ _absent_name | join(',') }}]"
+  vars:
+    _existing: "{{ _postgresql_roles_existing }}"
+    _groups: "{{ _existing | map(attribute='member_of') | flatten }}"
+    _absent: "{{ _postgresql_roles_absent }}"
+    _absent_query: "{{ _absent | selectattr('name', 'in', _groups) }}"
+    _absent_name: "{{ _absent_query | map(attribute='name') }}"
+
 - name: Manage PostgreSQL roles
   community.postgresql.postgresql_user:
     name: "{{ item.name }}"
@@ -8,7 +66,7 @@
     role_attr_flags: "{{ item.role_attr_flags | default(omit) }}"
   loop_control:
     label: "{{ item.name }}"
-  loop: "{{ postgresql_roles }}"
+  loop: "{{ _postgresql_roles_present }}"
   become: true
   become_user: "{{ _postgresql_user }}"
   environment:
@@ -27,7 +85,20 @@
     _group_state: "{{ item.1.state | default('present') }}"
   loop_control:
     label: "{{ _role.name }} - {{ _group_name }} - {{ _group_state }}"
-  loop: "{{ postgresql_roles | subelements('groups', skip_missing='yes') }}"
+  loop: "{{ _postgresql_roles_present | subelements('groups', skip_missing='yes') }}"
+  become: true
+  become_user: "{{ _postgresql_user }}"
+  environment:
+    PGOPTIONS: "{{ _postgresql_pgoptions }}"
+  no_log: "{{ postgresql_nolog }}"
+
+- name: Drop PostgreSQL roles
+  community.postgresql.postgresql_user:
+    name: "{{ item.name }}"
+    state: absent
+  loop_control:
+    label: "{{ item.name }}"
+  loop: "{{ _postgresql_roles_absent }}"
   become: true
   become_user: "{{ _postgresql_user }}"
   environment:
