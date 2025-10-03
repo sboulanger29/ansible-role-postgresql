@@ -1,4 +1,7 @@
 ---
+- name: Set installation facts
+  ansible.builtin.include_tasks: vars.yml
+
 - name: Query existing roles
   community.postgresql.postgresql_info:
     filter:
