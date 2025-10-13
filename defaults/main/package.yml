@@ -9,7 +9,9 @@ __postgresql_package_extra:
   redhat:
     - "python3-dnf-plugin-versionlock"
     - "glibc-langpack-{{ postgresql_locale | regex_replace('_.*', '') }}"
-  debian: []
+  debian:
+    - "pgtop"
+    - "pg-activity"
 __postgresql_package_server:
   redhat:
     - "postgresql{{ postgresql_release }}-server"
