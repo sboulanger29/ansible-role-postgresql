@@ -13,7 +13,7 @@
 
     - name: Stat Ansible configuration file
       ansible.builtin.stat:
-        path: "{{ _postgresql_conf_ansible }}"
+        path: "{{ _postgresql_conf_ansible_file }}"
       register: _ansible_conf_query
 
     - name: Verify Ansible configuration file

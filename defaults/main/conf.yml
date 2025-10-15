@@ -1,7 +1,6 @@
 ---
 __postgresql_conf_dir: "/etc/postgresql/{{ postgresql_release }}/main"
-__postgresql_conf_local: 70-local.conf
-__postgresql_conf_ansible: 90-ansible.conf
+__postgresql_conf_ansible_file: 10-ansible.conf
 __postgresql_conf_exclude:
-  - "{{ __postgresql_conf_local }}"
-  - "{{ __postgresql_conf_ansible }}"
+  - "{{ __postgresql_conf_ansible_file }}"
+

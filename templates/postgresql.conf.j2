@@ -1,6 +1,6 @@
 {{ ansible_managed | comment }}
 
-include_dir = '{{ _postgresql_conf_include | basename }}'
+include_dir = '{{ _postgresql_conf_includedir | basename }}'
 
 listen_addresses = '*'
 
